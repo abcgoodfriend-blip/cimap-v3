@@ -1,0 +1,103 @@
+{
+  "theme_archetype": {
+    "name": "Archetype 4 (Swiss & High-Contrast)",
+    "mode": "Dark Theme",
+    "description": "A war-room / NOC / command-center aesthetic. Professional, serious, and authoritative tone. High-density, minimal noise, and data-forward."
+  },
+  "colors": {
+    "background": {
+      "app": "#0A0A0A",
+      "surface": "#121212",
+      "panel": "#1A1A1A"
+    },
+    "border": {
+      "default": "rgba(255, 255, 255, 0.10)",
+      "highlight": "rgba(255, 255, 255, 0.20)"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "rgba(255, 255, 255, 0.65)",
+      "muted": "rgba(255, 255, 255, 0.40)"
+    },
+    "semantic": {
+      "critical": "#FF3B30",
+      "high": "#FF9500",
+      "medium": "#FFCC00",
+      "low": "#34C759"
+    },
+    "forbidden_colors": [
+      "purple",
+      "violet gradients",
+      "teal",
+      "teal blue",
+      "teal green"
+    ]
+  },
+  "typography": {
+    "fonts": {
+      "headings": "Chivo",
+      "body_and_data": "JetBrains Mono",
+      "forbidden_fonts": ["Inter", "Roboto", "Space Grotesk", "Open Sans", "Lato"]
+    },
+    "sizing": {
+      "h1": "text-3xl tracking-tighter leading-none font-bold",
+      "h2": "text-2xl tracking-tight font-semibold",
+      "h3": "text-xl tracking-tight font-medium",
+      "body": "text-sm leading-tight",
+      "data_labels": "text-xs tracking-[0.1em] uppercase",
+      "micro": "text-[10px] tracking-[0.05em] uppercase"
+    }
+  },
+  "layout_and_spacing": {
+    "grid_system": "MODE B: THE 'CONTROL ROOM' GRID",
+    "spacing_scale": "Dense and compact. Tailwind scale: p-2, p-4, p-6. Container gaps gap-4 or gap-6.",
+    "borders_and_radius": "Sharp edges or minimal radius (rounded-sm max 4px). Use border-collapse style layouts with 1px borders for a technical skeleton look.",
+    "alignment": "Left-aligned, data-forward. No centered hero layouts."
+  },
+  "components": {
+    "strategy": "Hybrid: Pure HTML/Tailwind for strict grids, Shadcn UI for dropdowns, selects, tabs, and tables. No generic Shadcn cards—use raw divs with 1px borders.",
+    "global_shell": "Sticky/fixed layout with a horizontal ticker at the top. Left or top navigation.",
+    "live_signal_ticker": "Marquee text with JetBrains Mono, small uppercase font, no background just text and dots. Highlight HIGH_RISK in critical red.",
+    "unified_insight_row": "Compact KPI cards (col-span-1) with sharp numbers.",
+    "panels_and_drawers": "Solid backgrounds (#121212) with hard borders.",
+    "floating_ai_analyst": "Glass-morphism: bg-black/60 backdrop-blur-xl border border-white/10. Positioned fixed bottom-right.",
+    "charts": "Recharts or Visx. Use semantic colors for bars/pies representing risk. Use thin grid lines.",
+    "leaflet_map": "Dark mode map tiles (e.g., CartoDB Dark Matter). Map pins colored by severity."
+  },
+  "motion_and_interactions": {
+    "live_alerts": "Pulsing animation (ping) on red dots for real-time WebSocket alerts.",
+    "hover_states": "Slight brightness increase. hover:bg-white/5 or hover:border-white/30. High-contrast focus rings.",
+    "transitions": "Instant or very fast (100ms-150ms). No slow elegant fades—this is a rapid intelligence dashboard."
+  },
+  "media": {
+    "image_urls": [
+      {
+        "url": "https://images.unsplash.com/photo-1775057154553-0f3e8902fea3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTV8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGRhdGElMjBuZXR3b3JrJTIwZGFya3xlbnwwfHx8fDE3NzY5NjU4OTd8MA&ixlib=rb-4.1.0&q=85",
+        "category": "login_background",
+        "description": "Abstract geometric lines and shapes on black background. Use as a faint background image for the login page."
+      },
+      {
+        "url": "https://images.pexels.com/photos/12912940/pexels-photo-12912940.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "user_avatar",
+        "description": "Sophisticated black and white studio portrait of a middle-aged businessman in a formal suit against a dark background. Use for Executive Role Switcher / User Dropdown."
+      }
+    ]
+  },
+  "accessibility_and_testing": {
+    "testing_attributes": "All interactive and key informational elements MUST include a data-testid attribute (kebab-case, role-based).",
+    "contrast": "Ensure text against dark backgrounds passes APCA contrast ratios. Red/Orange text must be legible."
+  },
+  "instructions_to_main_agent": [
+    "Build a pure frontend (React/Tailwind/Shadcn) OSINT Dashboard.",
+    "Enforce Archetype 4 (Swiss & High-Contrast) in Dark Mode.",
+    "DO NOT use Inter or Roboto. Use Chivo for headings and JetBrains Mono for data.",
+    "DO NOT use purple or teal gradients.",
+    "Ensure the Severity colors exactly match: Critical=#FF3B30, High=#FF9500, Medium=#FFCC00, Low=#34C759.",
+    "Design for high-density, minimal noise (Control Room Grid).",
+    "Include a data-testid on all buttons, links, and major components.",
+    "Implement the Live Signal Ticker and Floating AI Analyst (with glassmorphism) exactly as described.",
+    "Use standard HTML/Tailwind for bento-style/grid layouts instead of default Shadcn Cards to maintain strict 1px border skeleton styling.",
+    "Only use provided media URLs from this file. No placeholder images like via.placeholder.com.",
+    "Remember to read from /app/design_guidelines.json for comprehensive UI/UX specs before coding."
+  ]
+}
