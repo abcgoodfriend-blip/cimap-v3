@@ -195,7 +195,7 @@ export default function DetailDrawer() {
       if (p.severity === "critical") m[p.handle].critical++;
       m[p.handle].reach += p.reach || 0;
     });
-    return Object.values(m).sort((a, b) => b.critical - a.critical || b.reach - a.reach).slice(0, 6);
+    return Object.values(m).sort((a, b) => b.critical - a.critical || b.reach - a.reach).slice(0, 25);
   }, [filtered]);
 
   const velocity = useMemo(() => {
@@ -378,11 +378,11 @@ export default function DetailDrawer() {
                   <div className="space-y-1.5">
                     {Object.entries(tiers).map(([t, n]) => (
                       <div key={t} className="flex items-center gap-2 text-[11px]">
-                        <span className="w-32 truncate">{t}</span>
-                        <div className="flex-1 h-1.5 bg-black/5">
+                        <span className="whitespace-nowrap flex-shrink-0">{t}</span>
+                        <div className="flex-1 min-w-[24px] h-1.5 bg-black/5">
                           <div className="h-full" style={{ background: colors[t], width: `${(n / max) * 100}%` }} />
                         </div>
-                        <span className="font-display w-10 text-right">{n}</span>
+                        <span className="font-display w-8 text-right flex-shrink-0">{n}</span>
                       </div>
                     ))}
                   </div>
@@ -474,21 +474,22 @@ export default function DetailDrawer() {
           {/* Row 3 — Top Amplifiers + Platform */}
           <section className="panel lg:col-span-3 min-h-0 flex flex-col overflow-hidden">
             <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0 flex items-center gap-1.5"><Users className="w-3 h-3" /> Top Amplifiers</div>
-            <div className="flex-1 min-h-0 overflow-y-auto p-3">
-              <div className="space-y-1.5">
-                {topAuthors.map((a) => (
-                  <div key={a.handle} className="flex items-center gap-2 text-[11px]">
-                    <div className="flex-1 min-w-0 truncate">
-                      <span className="text-[var(--text-primary)]">{a.name}</span>
-                      <span className="text-[var(--text-muted)] ml-1.5">{a.handle}</span>
-                    </div>
-                    <span className="label-micro">{Math.round(a.reach / 1000)}K</span>
-                    <span className="font-display sev-critical w-6 text-right">{a.critical}</span>
-                    <span className="font-display w-8 text-right">{a.posts}</span>
+            <div className="flex-1 min-h-0 overflow-y-auto px-3 pt-3 space-y-1.5">
+              {topAuthors.map((a) => (
+                <div key={a.handle} className="flex items-center gap-2 text-[11px]">
+                  <div className="flex-1 min-w-0 truncate">
+                    <span className="text-[var(--text-primary)]">{a.name}</span>
+                    <span className="text-[var(--text-muted)] ml-1.5">{a.handle}</span>
                   </div>
-                ))}
-              </div>
-              <div className="label-micro mt-3 mb-2">Platform Amplification</div>
+                  <span className="label-micro">{Math.round(a.reach / 1000)}K</span>
+                  <span className="font-display sev-critical w-6 text-right">{a.critical}</span>
+                  <span className="font-display w-8 text-right">{a.posts}</span>
+                </div>
+              ))}
+              {!topAuthors.length && <div className="label-micro">No amplifiers.</div>}
+            </div>
+            <div className="flex-shrink-0 border-t border-hair p-3">
+              <div className="label-micro mb-2">Platform Amplification</div>
               <div className="space-y-1">
                 {platformAmp.map((p) => (
                   <div key={p.platform} className="flex items-center gap-2 text-[11px]">
