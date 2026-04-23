@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Verify z-index bug fix for CIMAP dashboard's Geospatial Map tab - ensure DetailDrawer appears above map overlay chips"
+user_problem_statement: "Verify the DetailDrawer fullscreen redesign in the CIMAP dashboard"
 
 frontend:
   - task: "Z-index fix for Geospatial Map overlays vs DetailDrawer"
@@ -117,15 +117,27 @@ frontend:
           agent: "testing"
           comment: "✓ PASS - Z-index fix verified successfully. DetailDrawer (z-index: 80) correctly appears ABOVE all map overlays (z-index: 20). Tested by: 1) Opening app in demo mode, 2) Navigating to Geospatial Map tab, 3) Verifying three overlay elements present (top-left chip 'Geospatial Intelligence', top-right mode toggle 'PINS/HEATMAP/BOTH', bottom-left legend 'Severity'), 4) Opening DetailDrawer by clicking hotspot, 5) Verifying z-index hierarchy. Screenshots captured show drawer properly covers overlays. No visual bleeding of overlays on top of drawer. Fix working as expected."
 
+  - task: "DetailDrawer fullscreen redesign with grid layout"
+    implemented: true
+    working: true
+    file: "frontend/src/components/overview/DetailDrawer.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✓ PASS - DetailDrawer fullscreen redesign verified successfully on both desktop and mobile. Desktop (1920x1000): Drawer is FULLSCREEN (1920x1000px, covers entire viewport). Grid layout with xl:grid-cols-12 detected with 9 section tiles total, 8 sections using xl:col-span-3 (4 tiles per row). No outer vertical scrollbar on desktop (scrollHeight=788, clientHeight=788). 10 elements with overflow-y-auto for inner scrollbars. No horizontal scrollbar detected. Mobile (375x812): Grid uses grid-cols-1 (sections stack vertically). Drawer scrolls vertically as expected. Drawer closes cleanly with Escape key. All requirements met: fullscreen coverage, side-by-side grid layout with 4 tiles per row on xl+, no outer vertical scroll on desktop, individual tiles have inner scrollbars, no horizontal scrollbar, mobile stacks vertically with vertical scroll, closes with Escape/click outside."
+
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 1
+  test_sequence: 2
   run_ui: true
 
 test_plan:
   current_focus:
-    - "Z-index fix for Geospatial Map overlays vs DetailDrawer"
+    - "DetailDrawer fullscreen redesign with grid layout"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -133,3 +145,5 @@ test_plan:
 agent_communication:
     - agent: "testing"
       message: "Z-index bug fix verification completed successfully. The DetailDrawer now correctly appears above all map overlay elements (top-left chip, top-right toggle, bottom-left legend). Z-index values confirmed: Drawer=80, Overlays=20. Visual testing with screenshots confirms no overlay bleeding on top of drawer. Test PASSED."
+    - agent: "testing"
+      message: "DetailDrawer fullscreen redesign verification completed successfully. All requirements verified: ✓ Fullscreen coverage (1920x1000px on desktop), ✓ Grid layout with 4 tiles per row on xl+ screens (xl:grid-cols-12 with xl:col-span-3 sections), ✓ No outer vertical scrollbar on desktop, ✓ Individual tiles have inner scrollbars (10 overflow-y-auto elements), ✓ No horizontal scrollbar, ✓ Mobile (375x812) stacks vertically with vertical scroll, ✓ Drawer closes with Escape key. Screenshots captured for both desktop and mobile viewports. Test PASSED."

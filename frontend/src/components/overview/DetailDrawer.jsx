@@ -69,7 +69,7 @@ function SeverityTree({ severity }) {
   };
 
   return (
-    <div data-testid={`severity-tree-${severity}`} className="panel max-h-[620px] overflow-y-auto">
+    <div data-testid={`severity-tree-${severity}`} className="panel h-full overflow-y-auto border-0">
       {tree.map((v) => {
         const vOpen = openV.has(v.name);
         return (
@@ -238,9 +238,9 @@ export default function DetailDrawer() {
       <SheetContent
         side="right"
         data-testid="detail-drawer"
-        className="w-full sm:max-w-4xl rounded-none bg-[var(--bg-app)] border-l border-hair text-[var(--text-primary)] p-0 overflow-y-auto z-[90]"
+        className="w-screen sm:max-w-none h-screen max-h-screen rounded-none bg-[var(--bg-app)] border-l border-hair text-[var(--text-primary)] p-0 overflow-hidden z-[90] flex flex-col"
       >
-        <SheetHeader className="p-4 border-b border-hair bg-[var(--bg-surface)] text-left">
+        <SheetHeader className="p-3 md:p-4 border-b border-hair bg-[var(--bg-surface)] text-left flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="label-micro">{(type || "detail").toUpperCase()}</div>
             <div className="flex items-center gap-2 label-micro">
@@ -271,13 +271,18 @@ export default function DetailDrawer() {
           </div>
         </SheetHeader>
 
-        <div className="p-4 space-y-4">
-          <SeverityBar data={severity} />
+        <div className="flex-1 min-h-0 overflow-y-auto xl:overflow-hidden p-3">
+         <div className="xl:h-full grid gap-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-12 xl:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]">
 
-          {/* Executive Brief — 6 decision-grade metrics */}
-          <section className="panel">
-            <div className="px-3 py-2 border-b border-hair label-micro">Executive Brief · At-a-glance</div>
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-px bg-[var(--border-default)]">
+          {/* Row 1 — SeverityBar */}
+          <div className="md:col-span-2 xl:col-span-3 xl:row-start-1 min-h-0 flex flex-col justify-center">
+            <SeverityBar data={severity} />
+          </div>
+
+          {/* Row 1 — Executive Brief */}
+          <section className="panel md:col-span-2 xl:col-span-9 xl:row-start-1 min-h-0 flex flex-col overflow-hidden">
+            <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Executive Brief · At-a-glance</div>
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-px bg-[var(--border-default)] flex-1 min-h-0 overflow-y-auto">
               <div className="bg-[var(--bg-surface)] p-2.5">
                 <div className="label-micro">Total Reach</div>
                 {(() => {
@@ -354,10 +359,10 @@ export default function DetailDrawer() {
             </div>
           </section>
 
-          {/* Stakeholder tiers + Verbatim quotes + Regulatory flag */}
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="panel p-3">
-              <div className="label-micro mb-2">Stakeholder Tiers · by follower influence</div>
+          {/* Row 2 — Stakeholder Tiers */}
+          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+            <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Stakeholder Tiers · by follower influence</div>
+            <div className="flex-1 min-h-0 overflow-y-auto p-3">
               {(() => {
                 const tiers = { "Celebrity / Major Media": 0, "Influencer / Mid-Media": 0, "Activist / Niche": 0, "Grassroots": 0 };
                 const colors = { "Celebrity / Major Media": "var(--sev-critical)", "Influencer / Mid-Media": "var(--sev-high)", "Activist / Niche": "var(--sev-medium)", "Grassroots": "var(--sev-low)" };
@@ -373,7 +378,7 @@ export default function DetailDrawer() {
                   <div className="space-y-1.5">
                     {Object.entries(tiers).map(([t, n]) => (
                       <div key={t} className="flex items-center gap-2 text-[11px]">
-                        <span className="w-44 truncate">{t}</span>
+                        <span className="w-32 truncate">{t}</span>
                         <div className="flex-1 h-1.5 bg-black/5">
                           <div className="h-full" style={{ background: colors[t], width: `${(n / max) * 100}%` }} />
                         </div>
@@ -383,9 +388,7 @@ export default function DetailDrawer() {
                   </div>
                 );
               })()}
-
-              {/* Regulatory / Legal proximity + Board-escalation chip */}
-              <div className="mt-3 flex items-center gap-2 flex-wrap">
+              <div className="mt-3 flex items-center gap-1.5 flex-wrap">
                 {(() => {
                   const legal = filtered.some((x) => x.category === "Legal & Litigation");
                   const fin = filtered.some((x) => x.category === "Financial Irregularities");
@@ -401,66 +404,36 @@ export default function DetailDrawer() {
                 })()}
               </div>
             </div>
+          </section>
 
-            <div className="panel p-3">
-              <div className="label-micro mb-2">Verbatim Signal Quotes · Top-amplified</div>
-              <div className="space-y-2">
-                {[...filtered].sort((a, b) => (b.shares || 0) - (a.shares || 0)).slice(0, 3).map((x) => (
-                  <button
-                    key={x.id}
-                    type="button"
-                    onClick={() => setSelectedPost(x)}
-                    className="w-full text-left border-l-2 pl-2.5 py-1 hover:bg-black/[0.03]"
-                    style={{ borderColor: SEV_COLOR[x.severity] }}
-                  >
-                    <div className="text-[11px] italic leading-snug text-[var(--text-primary)]">"{(x.content || "").slice(0, 170)}"</div>
-                    <div className="label-micro mt-1 truncate">— {x.author} · {x.handle} · {((x.shares || 0) / 1000).toFixed(1)}K shares · {x.platform}</div>
-                  </button>
-                ))}
-                {!filtered.length && <div className="label-micro">No quotes available.</div>}
-              </div>
+          {/* Row 2 — Verbatim Quotes */}
+          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+            <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Verbatim Signal Quotes · Top-amplified</div>
+            <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2">
+              {[...filtered].sort((a, b) => (b.shares || 0) - (a.shares || 0)).slice(0, 5).map((x) => (
+                <button
+                  key={x.id}
+                  type="button"
+                  onClick={() => setSelectedPost(x)}
+                  className="w-full text-left border-l-2 pl-2.5 py-1 hover:bg-black/[0.03]"
+                  style={{ borderColor: SEV_COLOR[x.severity] }}
+                >
+                  <div className="text-[11px] italic leading-snug text-[var(--text-primary)]">"{(x.content || "").slice(0, 170)}"</div>
+                  <div className="label-micro mt-1 truncate">— {x.author} · {x.handle} · {((x.shares || 0) / 1000).toFixed(1)}K shares · {x.platform}</div>
+                </button>
+              ))}
+              {!filtered.length && <div className="label-micro">No quotes available.</div>}
             </div>
           </section>
 
-          {/* Severity detail: full signal tree */}
-          {type === "severity" && (
-            <section>
-              <div className="label-micro mb-2">Signal Tree · Venture → Site → Sub-category</div>
-              <SeverityTree severity={d.severity} />
-            </section>
-          )}
-
-          {/* Category: subcategory mini-gauges */}
-          {type === "category" && Array.isArray(d.subcategories) && d.subcategories.length > 0 && (
-            <section className="panel p-3">
-              <div className="label-micro mb-2">Sub-category Risk Index · {d.category}</div>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-px bg-[var(--border-default)]">
-                {d.subcategories.map((sc) => (
-                  <div key={sc.name} className="bg-[var(--bg-surface)] p-2.5 flex items-center gap-3">
-                    <MiniDial value={sc.avg_risk} color={bandColor(sc.avg_risk)} />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs font-display truncate">{sc.name}</div>
-                      <div className="flex items-center gap-3 label-micro mt-0.5">
-                        <span className="sev-critical">● {sc.critical}</span>
-                        <span>{sc.signals} sig</span>
-                      </div>
-                    </div>
-                    <div className="font-display text-lg" style={{ color: bandColor(sc.avg_risk) }}>
-                      {Math.round(sc.avg_risk * 100)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          <section className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-4">
-            <div className="panel p-3">
-              <div className="flex items-center justify-between mb-1">
-                <div className="label-micro flex items-center gap-1.5"><Zap className="w-3 h-3 text-[var(--sev-high)]" /> Signal Velocity · 14d</div>
-                <div className="label-micro">{stats.signals} signals</div>
-              </div>
-              <div className="h-[100px] -mx-2">
+          {/* Row 2 — Velocity + Sentiment Distribution (combined) */}
+          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+            <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0 flex items-center justify-between">
+              <span className="flex items-center gap-1.5"><Zap className="w-3 h-3 text-[var(--sev-high)]" /> Velocity · 14d</span>
+              <span>{stats.signals} signals</span>
+            </div>
+            <div className="flex-1 min-h-0 overflow-y-auto p-3">
+              <div className="h-[90px] -mx-2">
                 <ResponsiveContainer>
                   <LineChart data={velocity.series}>
                     <XAxis dataKey="d" hide />
@@ -469,9 +442,7 @@ export default function DetailDrawer() {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-            </div>
-            <div className="panel p-3">
-              <div className="label-micro mb-2">Sentiment Distribution</div>
+              <div className="label-micro mt-3 mb-1.5">Sentiment Distribution</div>
               <div className="flex h-4 border border-hair">
                 <div className="bg-[var(--sev-critical)]" style={{ width: `${(stats.neg / sentTotal) * 100}%` }} />
                 <div className="bg-[var(--sev-medium)]" style={{ width: `${(stats.neu / sentTotal) * 100}%` }} />
@@ -485,21 +456,25 @@ export default function DetailDrawer() {
             </div>
           </section>
 
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="panel p-3">
-              <div className="label-micro mb-2 flex items-center gap-1.5"><Radar className="w-3 h-3" /> Narrative Themes</div>
-              <div className="space-y-1.5">
-                {topNarratives.map((n) => (
-                  <div key={n.key} className="flex items-center gap-2">
-                    <div className="text-[11px] w-44 truncate">{n.key}</div>
-                    <div className="flex-1 h-1.5 bg-black/5"><div className="h-full bg-[var(--sev-critical)]" style={{ width: `${Math.min(100, (n.count / Math.max(1, filtered.length)) * 100 * 3)}%` }} /></div>
-                    <div className="label-micro w-14 text-right">{n.critical}/{n.count}</div>
-                  </div>
-                ))}
-              </div>
+          {/* Row 2 — Narrative Themes */}
+          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+            <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0 flex items-center gap-1.5"><Radar className="w-3 h-3" /> Narrative Themes</div>
+            <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-1.5">
+              {topNarratives.map((n) => (
+                <div key={n.key} className="flex items-center gap-2">
+                  <div className="text-[11px] flex-1 min-w-0 truncate">{n.key}</div>
+                  <div className="w-20 h-1.5 bg-black/5"><div className="h-full bg-[var(--sev-critical)]" style={{ width: `${Math.min(100, (n.count / Math.max(1, filtered.length)) * 100 * 3)}%` }} /></div>
+                  <div className="label-micro w-14 text-right">{n.critical}/{n.count}</div>
+                </div>
+              ))}
+              {!topNarratives.length && <div className="label-micro">No narrative themes.</div>}
             </div>
-            <div className="panel p-3">
-              <div className="label-micro mb-2 flex items-center gap-1.5"><Users className="w-3 h-3" /> Top Amplifiers</div>
+          </section>
+
+          {/* Row 3 — Top Amplifiers + Platform */}
+          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+            <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0 flex items-center gap-1.5"><Users className="w-3 h-3" /> Top Amplifiers</div>
+            <div className="flex-1 min-h-0 overflow-y-auto p-3">
               <div className="space-y-1.5">
                 {topAuthors.map((a) => (
                   <div key={a.handle} className="flex items-center gap-2 text-[11px]">
@@ -507,13 +482,13 @@ export default function DetailDrawer() {
                       <span className="text-[var(--text-primary)]">{a.name}</span>
                       <span className="text-[var(--text-muted)] ml-1.5">{a.handle}</span>
                     </div>
-                    <span className="label-micro">reach {Math.round(a.reach / 1000)}K</span>
+                    <span className="label-micro">{Math.round(a.reach / 1000)}K</span>
                     <span className="font-display sev-critical w-6 text-right">{a.critical}</span>
                     <span className="font-display w-8 text-right">{a.posts}</span>
                   </div>
                 ))}
               </div>
-              <div className="label-micro mt-4 mb-2">Platform Amplification</div>
+              <div className="label-micro mt-3 mb-2">Platform Amplification</div>
               <div className="space-y-1">
                 {platformAmp.map((p) => (
                   <div key={p.platform} className="flex items-center gap-2 text-[11px]">
@@ -526,40 +501,78 @@ export default function DetailDrawer() {
             </div>
           </section>
 
-          <section className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4">
-            <div className="panel p-3">
-              <div className="label-micro mb-2">Top Critical Signals</div>
-              <div className="max-h-72 overflow-y-auto divide-y divide-[var(--border-default)]">
-                {[...filtered].sort((a, b) => b.risk_score - a.risk_score).slice(0, 10).map((p) => (
-                  <button
-                    key={p.id}
-                    data-testid={`critical-signal-${p.id}`}
-                    onClick={() => setSelectedPost(p)}
-                    className="w-full text-left py-2 px-1 hover:bg-black/[0.03]"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5" style={{ background: SEV_COLOR[p.severity] }} />
-                      <span className="label-micro">{p.platform} · {p.state}</span>
-                      <span className="font-display text-[10px] ml-auto sev-critical">{p.risk_score}</span>
-                    </div>
-                    <div className="text-xs mt-1 line-clamp-2">{p.content}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="panel p-3">
-              <div className="label-micro mb-2">Geographic Spread</div>
-              <div className="space-y-1.5">
-                {statesInvolved.map((s) => (
-                  <div key={s.state} className="flex items-center gap-2 text-[11px]">
-                    <span className="w-28 truncate">{s.state}</span>
-                    <div className="flex-1 h-1.5 bg-black/5"><div className="h-full bg-[var(--sev-critical)]" style={{ width: `${Math.min(100, (s.critical / Math.max(1, stats.critical)) * 100)}%` }} /></div>
-                    <span className="font-display w-10 text-right">{s.critical}/{s.count}</span>
+          {/* Row 3 — Top Critical Signals */}
+          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+            <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Top Critical Signals</div>
+            <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-[var(--border-default)]">
+              {[...filtered].sort((a, b) => b.risk_score - a.risk_score).slice(0, 12).map((p) => (
+                <button
+                  key={p.id}
+                  data-testid={`critical-signal-${p.id}`}
+                  onClick={() => setSelectedPost(p)}
+                  className="w-full text-left py-2 px-3 hover:bg-black/[0.03]"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5" style={{ background: SEV_COLOR[p.severity] }} />
+                    <span className="label-micro">{p.platform} · {p.state}</span>
+                    <span className="font-display text-[10px] ml-auto sev-critical">{p.risk_score}</span>
                   </div>
-                ))}
-              </div>
+                  <div className="text-xs mt-1 line-clamp-2">{p.content}</div>
+                </button>
+              ))}
+              {!filtered.length && <div className="label-micro p-3">No critical signals.</div>}
             </div>
           </section>
+
+          {/* Row 3 — Geographic Spread */}
+          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+            <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Geographic Spread</div>
+            <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-1.5">
+              {statesInvolved.map((s) => (
+                <div key={s.state} className="flex items-center gap-2 text-[11px]">
+                  <span className="w-28 truncate">{s.state}</span>
+                  <div className="flex-1 h-1.5 bg-black/5"><div className="h-full bg-[var(--sev-critical)]" style={{ width: `${Math.min(100, (s.critical / Math.max(1, stats.critical)) * 100)}%` }} /></div>
+                  <span className="font-display w-10 text-right">{s.critical}/{s.count}</span>
+                </div>
+              ))}
+              {!statesInvolved.length && <div className="label-micro">No geographic data.</div>}
+            </div>
+          </section>
+
+          {/* Row 3 — Conditional: Severity tree OR Sub-category dials (fills 8th tile) */}
+          {type === "severity" && (
+            <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+              <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Signal Tree · VEN → SITE → SUB</div>
+              <div className="flex-1 min-h-0 overflow-y-auto">
+                <SeverityTree severity={d.severity} />
+              </div>
+            </section>
+          )}
+          {type === "category" && Array.isArray(d.subcategories) && d.subcategories.length > 0 && (
+            <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+              <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Sub-category Risk · {d.category}</div>
+              <div className="flex-1 min-h-0 overflow-y-auto">
+                <div className="grid grid-cols-1 gap-px bg-[var(--border-default)]">
+                  {d.subcategories.map((sc) => (
+                    <div key={sc.name} className="bg-[var(--bg-surface)] p-2.5 flex items-center gap-3">
+                      <MiniDial value={sc.avg_risk} color={bandColor(sc.avg_risk)} />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-display truncate">{sc.name}</div>
+                        <div className="flex items-center gap-3 label-micro mt-0.5">
+                          <span className="sev-critical">● {sc.critical}</span>
+                          <span>{sc.signals} sig</span>
+                        </div>
+                      </div>
+                      <div className="font-display text-lg" style={{ color: bandColor(sc.avg_risk) }}>
+                        {Math.round(sc.avg_risk * 100)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+         </div>
         </div>
       </SheetContent>
     </Sheet>
