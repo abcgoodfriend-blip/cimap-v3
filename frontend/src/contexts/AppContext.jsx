@@ -31,6 +31,7 @@ export function AppProvider({ children }) {
   const [severityDist, setSeverityDist] = useState([]);
   const [platformDist, setPlatformDist] = useState([]);
   const [categoryDist, setCategoryDist] = useState([]);
+  const [ventureDist, setVentureDist] = useState([]);
   const [ventureBreakdown, setVentureBreakdown] = useState([]);
   const [topSites, setTopSites] = useState([]);
   const [sentimentTrend, setSentimentTrend] = useState([]);
@@ -47,16 +48,17 @@ export function AppProvider({ children }) {
 
   const loadAll = useCallback(async () => {
     const [
-      k, p, l, loc, hier, sev, plat, cat, vent, top, trend,
+      k, p, l, loc, hier, sev, plat, cat, vdist, vent, top, trend,
     ] = await Promise.all([
       safeFetch("/kpis", { params: paramsFromFilters, mockKey: "/kpis" }),
-      safeFetch("/posts", { params: { ...paramsFromFilters, limit: 100 }, mockKey: "/posts" }),
-      safeFetch("/posts/live", { params: { limit: 40 }, mockKey: "/posts/live" }),
+      safeFetch("/posts", { params: { ...paramsFromFilters, limit: 200 }, mockKey: "/posts" }),
+      safeFetch("/posts/live", { params: { limit: 60 }, mockKey: "/posts/live" }),
       safeFetch("/locations", { params: paramsFromFilters, mockKey: "/locations" }),
       safeFetch("/hierarchy", { params: paramsFromFilters, mockKey: "/hierarchy" }),
       safeFetch("/reports/severity", { params: paramsFromFilters, mockKey: "severity-distribution" }),
       safeFetch("/platform-distribution", { params: paramsFromFilters, mockKey: "/platform-distribution" }),
       safeFetch("/activity-distribution", { params: paramsFromFilters, mockKey: "category-distribution" }),
+      safeFetch("/activity-distribution", { params: paramsFromFilters, mockKey: "venture-distribution" }),
       safeFetch("/reports/area", { params: paramsFromFilters, mockKey: "venture-breakdown" }),
       safeFetch("/reports/area", { params: paramsFromFilters, mockKey: "top-sites" }),
       safeFetch("/sentiment-trend", { params: { bucket: "day", ...paramsFromFilters }, mockKey: "/sentiment-trend" }),
@@ -68,14 +70,13 @@ export function AppProvider({ children }) {
     setHierarchy(Array.isArray(hier.data) ? hier.data : []);
     setSeverityDist(Array.isArray(sev.data) ? sev.data : []);
     setPlatformDist(Array.isArray(plat.data) ? plat.data : []);
-    // category & venture may fall back to mock separately
     setCategoryDist(Array.isArray(cat.data) ? cat.data : []);
+    setVentureDist(Array.isArray(vdist.data) ? vdist.data : []);
     setVentureBreakdown(Array.isArray(vent.data) ? vent.data : []);
     setTopSites(Array.isArray(top.data) ? top.data : []);
     setSentimentTrend(Array.isArray(trend.data) ? trend.data : []);
     setSource(k.source === "live" ? "live" : "mock");
-    // Seed the live ticker
-    const sample = (Array.isArray(p.data) ? p.data : []).slice(0, 16);
+    const sample = (Array.isArray(p.data) ? p.data : []).slice(0, 20);
     setTickerSignals(sample);
   }, [paramsFromFilters]);
 
@@ -120,7 +121,7 @@ export function AppProvider({ children }) {
     selectedDetail, setSelectedDetail,
     selectedPost, setSelectedPost,
     kpis, posts, livePosts, hierarchy, locations, severityDist,
-    platformDist, categoryDist, ventureBreakdown, topSites, sentimentTrend,
+    platformDist, categoryDist, ventureDist, ventureBreakdown, topSites, sentimentTrend,
     alerts, tickerSignals, wsStatus, source,
     META,
     refresh: loadAll,

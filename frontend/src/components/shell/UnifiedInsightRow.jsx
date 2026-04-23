@@ -6,7 +6,7 @@ function KPI({ label, value, accent, testid }) {
   return (
     <div data-testid={testid} className="px-4 py-2.5 border-l border-white/10 first:border-l-0 flex flex-col justify-center min-w-[120px]">
       <div className="label-micro">{label}</div>
-      <div className="font-display text-xl leading-tight tracking-tight mt-0.5" style={{ color: accent || "#fff" }}>
+      <div className="font-display text-xl leading-tight tracking-tight mt-0.5" style={{ color: accent || "var(--text-primary)" }}>
         {value ?? "—"}
       </div>
     </div>

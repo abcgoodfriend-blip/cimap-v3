@@ -42,3 +42,22 @@ Build a production-grade OSINT Intelligence Dashboard (Frontend Only) for monito
 - P2: Heat clustering overlay on map using `leaflet.markercluster`
 - P2: Sentiment trend comparison chart in Analysis tab (week-over-week delta)
 - P2: Post hover auto-play video when `has_video` true (currently shows placeholder)
+
+## Round 3 (Feb 2026) — Intelligence & interactivity upgrade
+- Mock data **tripled** to 620 posts with 27 sites, 14 states, 4 sub-categories per category, 18 authors with follower counts; every post now carries image_url / video_url / shares / reach
+- **Filters are now fully live** — every derived metric (kpis, hierarchy, categoryDist, ventureDist, ventureBreakdown, topSites, locations, sentimentTrend, platform/severity distributions) runs through a single `applyFilters()` predicate in mockData. Changing Venture/Category/Sub-cat/Severity/State/Platform/Range/Start/End updates the ENTIRE page
+- Overview additions: **Executive Actions** strip (IMMEDIATE/48H/72H/This Week auto-recommendations), **Risk Dial · By Venture** gauge block below By Category
+- Fixed KPI text colour bug (defaulted to white → now `var(--text-primary)`)
+- Redesigned RiskDialGauge stack: arc + big legible number in severity colour (no overlap)
+- SeverityBar segments & legend chips are **clickable** → new `type: "severity"` DetailDrawer with full **Signal Tree** (Venture → Site → Sub-category) ordered by avg_risk
+- Category gauge click now shows **sub-category mini-dials** with risk index (70, 65, 56…) inside drawer
+- Drawer width: `sm:max-w-4xl` to hold richer intelligence
+- PostCard: cursor-following floating preview via portal, auto-plays `<video>` loop or ken-burns image when media present
+- PostDetailDialog widened to `max-w-5xl`; added Virality + Influence gauges, Author Reach/Shares/Narrative-Age trio, Sentiment Trajectory (site · 30d), Similar Signals Frequency (subcategory · 30d), Recommended Actions panel
+- GeoMapTab: new **Emerging Hotspots** strip, **Pins / Heatmap / Both** map-mode toggle, severity **legend**; heatmap implemented via `leaflet.heat` with risk-weighted points
+
+## Remaining Backlog
+- Persist filter presets per role to localStorage
+- Wire Emerging Hotspots clicks from Map → filtered Analysis tab
+- Week-over-week sentiment delta chart
+- AI narrative clustering labels (cluster similar subcategories via LLM)
