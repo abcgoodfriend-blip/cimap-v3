@@ -128,11 +128,14 @@ frontend:
         - working: true
           agent: "testing"
           comment: "✓ PASS - DetailDrawer fullscreen redesign verified successfully on both desktop and mobile. Desktop (1920x1000): Drawer is FULLSCREEN (1920x1000px, covers entire viewport). Grid layout with xl:grid-cols-12 detected with 9 section tiles total, 8 sections using xl:col-span-3 (4 tiles per row). No outer vertical scrollbar on desktop (scrollHeight=788, clientHeight=788). 10 elements with overflow-y-auto for inner scrollbars. No horizontal scrollbar detected. Mobile (375x812): Grid uses grid-cols-1 (sections stack vertically). Drawer scrolls vertically as expected. Drawer closes cleanly with Escape key. All requirements met: fullscreen coverage, side-by-side grid layout with 4 tiles per row on xl+, no outer vertical scroll on desktop, individual tiles have inner scrollbars, no horizontal scrollbar, mobile stacks vertically with vertical scroll, closes with Escape/click outside."
+        - working: true
+          agent: "testing"
+          comment: "✓ PASS - Viewport testing for 1366x768 and 1920x1080 completed successfully. ALL 9 SECTIONS VISIBLE WITHOUT OUTER SCROLL on both viewports. 1366x768 Laptop: All 9 section headers visible (Signal Severity Distribution, Executive Brief, Stakeholder Tiers, Verbatim Signal Quotes, Velocity, Narrative Themes, Top Amplifiers, Top Critical Signals, Geographic Spread). No outer scroll detected (scrollHeight=766px, clientHeight=766px). 1920x1080 Desktop: All 9 section headers visible. No outer scroll detected (scrollHeight=1078px, clientHeight=1078px). Grid layout working perfectly with all sections fitting in a single view. Inner scrollbars present within individual tiles as expected. Test executed by clicking Risk Dial (severity button) to open DetailDrawer. Screenshots captured for both viewports. REQUIREMENT MET: DetailDrawer fits all 9 sections in single view without outer scrolling on typical laptop viewport (1366x768) and desktop viewport (1920x1080)."
 
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 2
+  test_sequence: 3
   run_ui: true
 
 test_plan:
@@ -147,3 +150,5 @@ agent_communication:
       message: "Z-index bug fix verification completed successfully. The DetailDrawer now correctly appears above all map overlay elements (top-left chip, top-right toggle, bottom-left legend). Z-index values confirmed: Drawer=80, Overlays=20. Visual testing with screenshots confirms no overlay bleeding on top of drawer. Test PASSED."
     - agent: "testing"
       message: "DetailDrawer fullscreen redesign verification completed successfully. All requirements verified: ✓ Fullscreen coverage (1920x1000px on desktop), ✓ Grid layout with 4 tiles per row on xl+ screens (xl:grid-cols-12 with xl:col-span-3 sections), ✓ No outer vertical scrollbar on desktop, ✓ Individual tiles have inner scrollbars (10 overflow-y-auto elements), ✓ No horizontal scrollbar, ✓ Mobile (375x812) stacks vertically with vertical scroll, ✓ Drawer closes with Escape key. Screenshots captured for both desktop and mobile viewports. Test PASSED."
+    - agent: "testing"
+      message: "Viewport testing for 1366x768 and 1920x1080 completed successfully. CRITICAL REQUIREMENT MET: All 9 sections (Signal Severity Distribution, Executive Brief, Stakeholder Tiers, Verbatim Signal Quotes, Velocity, Narrative Themes, Top Amplifiers, Top Critical Signals, Geographic Spread) are visible SIMULTANEOUSLY without outer scrolling on both typical laptop (1366x768) and desktop (1920x1080) viewports. Measurements: 1366x768 - scrollHeight=766px, clientHeight=766px (no scroll); 1920x1080 - scrollHeight=1078px, clientHeight=1078px (no scroll). Grid layout working perfectly. Inner scrollbars present within individual tiles as designed. Test PASSED on both viewports."

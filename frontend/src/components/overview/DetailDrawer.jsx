@@ -240,7 +240,7 @@ export default function DetailDrawer() {
         data-testid="detail-drawer"
         className="w-screen sm:max-w-none h-screen max-h-screen rounded-none bg-[var(--bg-app)] border-l border-hair text-[var(--text-primary)] p-0 overflow-hidden z-[90] flex flex-col"
       >
-        <SheetHeader className="p-3 md:p-4 border-b border-hair bg-[var(--bg-surface)] text-left flex-shrink-0">
+        <SheetHeader className="px-3 py-2 border-b border-hair bg-[var(--bg-surface)] text-left flex-shrink-0 space-y-0">
           <div className="flex items-center justify-between">
             <div className="label-micro">{(type || "detail").toUpperCase()}</div>
             <div className="flex items-center gap-2 label-micro">
@@ -251,7 +251,7 @@ export default function DetailDrawer() {
               <span>· 3d vs 4d</span>
             </div>
           </div>
-          <SheetTitle className="text-[var(--text-primary)] font-display text-xl tracking-tight mt-1">{title}</SheetTitle>
+          <SheetTitle className="text-[var(--text-primary)] font-display text-base lg:text-lg tracking-tight mt-0.5">{title}</SheetTitle>
           <HierarchyCrumb
             venture={d.venture || (type === "venture" ? d.name : null)}
             site={d.site || (type === "site" ? d.name : null)}
@@ -261,52 +261,52 @@ export default function DetailDrawer() {
             state={d.state}
             platform={null}
           />
-          <div className="grid grid-cols-4 gap-px bg-[var(--border-default)] mt-3">
-            <div className="bg-[var(--bg-surface)] p-2.5"><div className="label-micro">Signals</div><div className="font-display text-lg">{stats.signals}</div></div>
-            <div className="bg-[var(--bg-surface)] p-2.5"><div className="label-micro">Critical</div><div className="font-display text-lg sev-critical">{stats.critical}</div></div>
-            <div className="bg-[var(--bg-surface)] p-2.5"><div className="label-micro">Avg Risk</div><div className="font-display text-lg sev-high">{stats.avgRisk.toFixed(2)}</div></div>
-            <div className="bg-[var(--bg-surface)] p-2.5"><div className="label-micro">Avg Sentiment</div>
-              <div className="font-display text-lg" style={{ color: stats.avgSent < 0 ? "var(--sev-high)" : "var(--sev-low)" }}>{stats.avgSent.toFixed(2)}</div>
+          <div className="grid grid-cols-4 gap-px bg-[var(--border-default)] mt-2">
+            <div className="bg-[var(--bg-surface)] px-2 py-1"><div className="label-micro">Signals</div><div className="font-display text-sm">{stats.signals}</div></div>
+            <div className="bg-[var(--bg-surface)] px-2 py-1"><div className="label-micro">Critical</div><div className="font-display text-sm sev-critical">{stats.critical}</div></div>
+            <div className="bg-[var(--bg-surface)] px-2 py-1"><div className="label-micro">Avg Risk</div><div className="font-display text-sm sev-high">{stats.avgRisk.toFixed(2)}</div></div>
+            <div className="bg-[var(--bg-surface)] px-2 py-1"><div className="label-micro">Avg Sentiment</div>
+              <div className="font-display text-sm" style={{ color: stats.avgSent < 0 ? "var(--sev-high)" : "var(--sev-low)" }}>{stats.avgSent.toFixed(2)}</div>
             </div>
           </div>
         </SheetHeader>
 
-        <div className="flex-1 min-h-0 overflow-y-auto xl:overflow-hidden p-3">
-         <div className="xl:h-full grid gap-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-12 xl:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="flex-1 min-h-0 overflow-y-auto lg:overflow-hidden p-3">
+         <div className="lg:h-full grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-12 lg:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]">
 
           {/* Row 1 — SeverityBar */}
-          <div className="md:col-span-2 xl:col-span-3 xl:row-start-1 min-h-0 flex flex-col justify-center">
+          <div className="md:col-span-2 lg:col-span-3 lg:row-start-1 min-h-0 flex flex-col justify-center">
             <SeverityBar data={severity} />
           </div>
 
           {/* Row 1 — Executive Brief */}
-          <section className="panel md:col-span-2 xl:col-span-9 xl:row-start-1 min-h-0 flex flex-col overflow-hidden">
+          <section className="panel md:col-span-2 lg:col-span-9 lg:row-start-1 min-h-0 flex flex-col overflow-hidden">
             <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Executive Brief · At-a-glance</div>
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-px bg-[var(--border-default)] flex-1 min-h-0 overflow-y-auto">
-              <div className="bg-[var(--bg-surface)] p-2.5">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-px bg-[var(--border-default)] flex-1 min-h-0 overflow-y-auto">
+              <div className="bg-[var(--bg-surface)] px-2 py-1.5">
                 <div className="label-micro">Total Reach</div>
                 {(() => {
                   const r = filtered.reduce((a, x) => a + (x.reach || 0), 0);
                   const txt = r >= 1e6 ? (r / 1e6).toFixed(1) + "M" : r >= 1e3 ? (r / 1e3).toFixed(1) + "K" : String(r);
-                  return <div className="font-display text-lg">{txt}</div>;
+                  return <div className="font-display text-sm">{txt}</div>;
                 })()}
                 <div className="label-micro">aggregate eyeballs</div>
               </div>
-              <div className="bg-[var(--bg-surface)] p-2.5">
+              <div className="bg-[var(--bg-surface)] px-2 py-1.5">
                 <div className="label-micro">Unique Voices</div>
-                <div className="font-display text-lg">{new Set(filtered.map((x) => x.handle)).size}</div>
+                <div className="font-display text-sm">{new Set(filtered.map((x) => x.handle)).size}</div>
                 <div className="label-micro">distinct authors</div>
               </div>
-              <div className="bg-[var(--bg-surface)] p-2.5">
+              <div className="bg-[var(--bg-surface)] px-2 py-1.5">
                 <div className="label-micro">Amplification</div>
                 {(() => {
                   const s = filtered.reduce((a, x) => a + (x.shares || 0), 0);
                   const txt = s >= 1e6 ? (s / 1e6).toFixed(1) + "M" : s >= 1e3 ? (s / 1e3).toFixed(1) + "K" : String(s);
-                  return <div className="font-display text-lg">{txt}</div>;
+                  return <div className="font-display text-sm">{txt}</div>;
                 })()}
                 <div className="label-micro">total shares</div>
               </div>
-              <div className="bg-[var(--bg-surface)] p-2.5">
+              <div className="bg-[var(--bg-surface)] px-2 py-1.5">
                 <div className="label-micro">Risk Trend · 7d vs 30d</div>
                 {(() => {
                   const DAY = 86400 * 1000, now = Date.now();
@@ -318,7 +318,7 @@ export default function DetailDrawer() {
                   const up = delta >= 0;
                   return (
                     <>
-                      <div className="font-display text-lg" style={{ color: up ? "var(--sev-critical)" : "var(--sev-low)" }}>
+                      <div className="font-display text-sm" style={{ color: up ? "var(--sev-critical)" : "var(--sev-low)" }}>
                         {up ? "+" : ""}{delta.toFixed(0)}%
                       </div>
                       <div className="label-micro">risk drift</div>
@@ -326,17 +326,17 @@ export default function DetailDrawer() {
                   );
                 })()}
               </div>
-              <div className="bg-[var(--bg-surface)] p-2.5">
+              <div className="bg-[var(--bg-surface)] px-2 py-1.5">
                 <div className="label-micro">Peak Hour · IST</div>
                 {(() => {
                   const h = new Array(24).fill(0);
                   filtered.forEach((x) => { h[new Date(x.timestamp).getHours()]++; });
                   const peak = h.indexOf(Math.max(...h));
-                  return <div className="font-display text-lg">{String(peak).padStart(2, "0")}:00</div>;
+                  return <div className="font-display text-sm">{String(peak).padStart(2, "0")}:00</div>;
                 })()}
                 <div className="label-micro">most-active window</div>
               </div>
-              <div className="bg-[var(--bg-surface)] p-2.5">
+              <div className="bg-[var(--bg-surface)] px-2 py-1.5">
                 <div className="label-micro">Coordination Score</div>
                 {(() => {
                   const DAY = 86400 * 1000;
@@ -350,7 +350,7 @@ export default function DetailDrawer() {
                   const label = pct >= 60 ? "likely campaign" : pct >= 30 ? "mixed" : "organic";
                   return (
                     <>
-                      <div className="font-display text-lg" style={{ color: c }}>{pct}%</div>
+                      <div className="font-display text-sm" style={{ color: c }}>{pct}%</div>
                       <div className="label-micro">{label}</div>
                     </>
                   );
@@ -360,7 +360,7 @@ export default function DetailDrawer() {
           </section>
 
           {/* Row 2 — Stakeholder Tiers */}
-          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+          <section className="panel lg:col-span-3 min-h-0 flex flex-col overflow-hidden">
             <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Stakeholder Tiers · by follower influence</div>
             <div className="flex-1 min-h-0 overflow-y-auto p-3">
               {(() => {
@@ -407,7 +407,7 @@ export default function DetailDrawer() {
           </section>
 
           {/* Row 2 — Verbatim Quotes */}
-          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+          <section className="panel lg:col-span-3 min-h-0 flex flex-col overflow-hidden">
             <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Verbatim Signal Quotes · Top-amplified</div>
             <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2">
               {[...filtered].sort((a, b) => (b.shares || 0) - (a.shares || 0)).slice(0, 5).map((x) => (
@@ -427,7 +427,7 @@ export default function DetailDrawer() {
           </section>
 
           {/* Row 2 — Velocity + Sentiment Distribution (combined) */}
-          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+          <section className="panel lg:col-span-3 min-h-0 flex flex-col overflow-hidden">
             <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0 flex items-center justify-between">
               <span className="flex items-center gap-1.5"><Zap className="w-3 h-3 text-[var(--sev-high)]" /> Velocity · 14d</span>
               <span>{stats.signals} signals</span>
@@ -457,7 +457,7 @@ export default function DetailDrawer() {
           </section>
 
           {/* Row 2 — Narrative Themes */}
-          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+          <section className="panel lg:col-span-3 min-h-0 flex flex-col overflow-hidden">
             <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0 flex items-center gap-1.5"><Radar className="w-3 h-3" /> Narrative Themes</div>
             <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-1.5">
               {topNarratives.map((n) => (
@@ -472,7 +472,7 @@ export default function DetailDrawer() {
           </section>
 
           {/* Row 3 — Top Amplifiers + Platform */}
-          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+          <section className="panel lg:col-span-3 min-h-0 flex flex-col overflow-hidden">
             <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0 flex items-center gap-1.5"><Users className="w-3 h-3" /> Top Amplifiers</div>
             <div className="flex-1 min-h-0 overflow-y-auto p-3">
               <div className="space-y-1.5">
@@ -502,7 +502,7 @@ export default function DetailDrawer() {
           </section>
 
           {/* Row 3 — Top Critical Signals */}
-          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+          <section className="panel lg:col-span-3 min-h-0 flex flex-col overflow-hidden">
             <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Top Critical Signals</div>
             <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-[var(--border-default)]">
               {[...filtered].sort((a, b) => b.risk_score - a.risk_score).slice(0, 12).map((p) => (
@@ -525,7 +525,7 @@ export default function DetailDrawer() {
           </section>
 
           {/* Row 3 — Geographic Spread */}
-          <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+          <section className="panel lg:col-span-3 min-h-0 flex flex-col overflow-hidden">
             <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Geographic Spread</div>
             <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-1.5">
               {statesInvolved.map((s) => (
@@ -541,7 +541,7 @@ export default function DetailDrawer() {
 
           {/* Row 3 — Conditional: Severity tree OR Sub-category dials (fills 8th tile) */}
           {type === "severity" && (
-            <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+            <section className="panel lg:col-span-3 min-h-0 flex flex-col overflow-hidden">
               <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Signal Tree · VEN → SITE → SUB</div>
               <div className="flex-1 min-h-0 overflow-y-auto">
                 <SeverityTree severity={d.severity} />
@@ -549,7 +549,7 @@ export default function DetailDrawer() {
             </section>
           )}
           {type === "category" && Array.isArray(d.subcategories) && d.subcategories.length > 0 && (
-            <section className="panel xl:col-span-3 min-h-0 flex flex-col overflow-hidden">
+            <section className="panel lg:col-span-3 min-h-0 flex flex-col overflow-hidden">
               <div className="px-3 py-2 border-b border-hair label-micro flex-shrink-0">Sub-category Risk · {d.category}</div>
               <div className="flex-1 min-h-0 overflow-y-auto">
                 <div className="grid grid-cols-1 gap-px bg-[var(--border-default)]">
