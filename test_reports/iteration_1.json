@@ -1,0 +1,45 @@
+{
+  "summary": "Thoroughly tested OSINT Intelligence Dashboard (frontend + thin backend proxy). Backend AI chat proxy 100% passing (4/4 pytest). Frontend core functionality all working: login, demo mode, shell (ticker/KPIs/severity bar/DEMO badge), all 4 nav tabs render correctly, risk dials & hierarchy tree open detail drawer, Leaflet map renders with markers, state summary table opens drawer, Analysis tab shows all 5 charts, Live Feed shows 3 sentiment columns with 40 post cards, post detail dialog opens with gauges, role switcher works (3 roles), AI chat responds via Emergent LLM fallback. Two real bugs: (1) AI FAB is covered by the 'Made with Emergent' watermark at bottom-right making it unclickable by real users, (2) data-testid='leaflet-map' is not on the DOM because react-leaflet MapContainer does not forward the prop.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/ai/chat", "issue": "Occasional >60s latency via ingress (cloud gateway) when Claude retries; backend itself returns 200. Short prompts complete in 4-8s."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "AIAnalystPanel FAB", "issue": "FAB button (fixed bottom-5 right-5) is covered/intercepted by the 'Made with Emergent' watermark at bottom-right. elementFromPoint at FAB center returns the watermark <p>, not the FAB. Users cannot open the AI panel via normal click in preview. Verified panel+chat work correctly when triggered via JS bypassing the overlay.", "selector": "[data-testid=\"ai-analyst-fab\"]", "priority": "HIGH"},
+      {"component": "LeafletMap", "issue": "data-testid='leaflet-map' is set on <MapContainer> but react-leaflet does not forward unknown props to the underlying <div>. Test selectors can't find it. Map functionally renders perfectly with 15 markers, dark tiles, zoom controls.", "selector": "[data-testid=\"leaflet-map\"]", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard bottom-right", "issues": ["AI FAB (white pill) and 'Made with Emergent' badge visually collide at bottom-right. FAB becomes hidden/unclickable. Recommend moving FAB to bottom-20 right-5 (above the badge) or to left side."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_ai_chat.py",
+    "/app/test_reports/pytest/ai_chat_results.xml"
+  ],
+  "action_items": [
+    "HIGH: Move AI Analyst FAB out from under the 'Made with Emergent' watermark. Change className in /app/frontend/src/components/ai/AIAnalystPanel.jsx line 42 from 'fixed bottom-5 right-5' to something like 'fixed bottom-20 right-5' or 'fixed bottom-5 right-28' so users can click it.",
+    "MEDIUM: In /app/frontend/src/components/map/LeafletMap.jsx, wrap <MapContainer> in a <div data-testid='leaflet-map' className='h-full w-full'> and remove the data-testid from MapContainer, because react-leaflet MapContainer doesn't forward arbitrary DOM props.",
+    "LOW: Consider hiding or gating the many external 401 console errors when falling back to mock (safeFetch in /app/frontend/src/lib/api.js) to avoid noisy console for executives opening devtools."
+  ],
+  "critical_code_review_comments": [
+    "Backend server.py is clean and minimal (~90 lines). EMERGENT_LLM_KEY env-driven, external-first then Emergent LLM fallback works as designed.",
+    "AIAnalystPanel FAB uses bottom-5 right-5 — collides with platform watermark; bug above.",
+    "LeafletMap prop forwarding bug above.",
+    "AuthContext default role is 'executive' when loginDemo is called without explicit role argument; consider respecting the local `role` state if user previously selected via role-select buttons (Login.jsx already passes role to loginDemo — verified OK).",
+    "Many components correctly add data-testid on interactive elements. Good coverage."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_ai_chat.py (new pytest suite for backend proxy)"
+  ],
+  "success_rate": {"backend": "100% (4/4 pytest)", "frontend": "~90% (all features functional; 2 bugs: FAB overlap + leaflet-map testid)"},
+  "test_credentials": "Demo Mode - no creds required. Click login-demo-btn with optional role-select-{executive|analyst|pr}",
+  "seed_data_creation": "None - app uses built-in mockData.js (220 signals / 8 ventures / 15 sites / 12 states) when external API unreachable",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend /api/ai/chat works and returns source=emergent-llm for demo mode (no token). Use page.evaluate() JS click to bypass 'Made with Emergent' watermark when testing the AI FAB until E1 repositions it. All other data-testids are reliable. External adani-backend-h3ij.onrender.com returns 401 without valid creds — mock fallback triggers automatically and DEMO badge shows.",
+  "rca of the issue": "AI FAB unclickable: CSS positioning of FAB (fixed bottom-5 right-5) overlaps with platform-injected 'Made with Emergent' watermark at bottom-right which has higher effective z-index / covers the FAB's hit area. Verified via document.elementFromPoint(fabCenter) returning the watermark <p> element instead of the FAB button. Panel + AI chat integration work perfectly once FAB state is toggled (confirmed via JS click)."
+}
