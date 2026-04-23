@@ -15,12 +15,12 @@ export default function LeafletMap() {
   const sites = locations.sites || [];
 
   return (
+    <div data-testid="leaflet-map" className="h-full w-full">
     <MapContainer
       center={center}
       zoom={5}
       style={{ height: "100%", width: "100%" }}
       scrollWheelZoom
-      data-testid="leaflet-map"
       zoomControl
     >
       <TileLayer
@@ -66,5 +66,6 @@ export default function LeafletMap() {
         );
       })}
     </MapContainer>
+    </div>
   );
 }

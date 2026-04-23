@@ -39,7 +39,7 @@ export default function AIAnalystPanel() {
       <button
         data-testid="ai-analyst-fab"
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-5 right-5 z-50 flex items-center gap-2 px-3 py-2.5 bg-white text-black border border-white/20 hover:bg-white/90 transition-colors shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_20px_40px_rgba(0,0,0,0.4)]"
+        className="fixed bottom-5 right-48 z-[60] flex items-center gap-2 px-3 py-2.5 bg-white text-black border border-white/20 hover:bg-white/90 transition-colors shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_20px_40px_rgba(0,0,0,0.4)]"
       >
         <Brain className="w-4 h-4" />
         <span className="text-xs font-semibold tracking-widest uppercase">AI Analyst</span>
@@ -48,7 +48,7 @@ export default function AIAnalystPanel() {
       {open && (
         <div
           data-testid="ai-analyst-panel"
-          className="fixed bottom-20 right-5 z-50 w-[400px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-6rem)] glass flex flex-col"
+          className="fixed bottom-20 right-5 z-[60] w-[400px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-6rem)] glass flex flex-col"
         >
           <div className="flex items-center justify-between p-3 border-b border-white/10">
             <div className="flex items-center gap-2">
