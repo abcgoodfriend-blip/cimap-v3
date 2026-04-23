@@ -102,80 +102,34 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Verify the DetailDrawer fullscreen redesign in the CIMAP dashboard"
+user_problem_statement: "Verify Analysis tab layout fits all 8 sections in single view without outer scroll on desktop"
 
 frontend:
-  - task: "Z-index fix for Geospatial Map overlays vs DetailDrawer"
+  - task: "Analysis tab layout - all 8 sections visible without outer scroll on desktop"
     implemented: true
     working: true
-    file: "frontend/src/components/map/GeoMapTab.jsx, frontend/src/components/overview/DetailDrawer.jsx"
+    file: "frontend/src/components/analysis/AnalysisTab.jsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
         - working: true
           agent: "testing"
-          comment: "✓ PASS - Z-index fix verified successfully. DetailDrawer (z-index: 80) correctly appears ABOVE all map overlays (z-index: 20). Tested by: 1) Opening app in demo mode, 2) Navigating to Geospatial Map tab, 3) Verifying three overlay elements present (top-left chip 'Geospatial Intelligence', top-right mode toggle 'PINS/HEATMAP/BOTH', bottom-left legend 'Severity'), 4) Opening DetailDrawer by clicking hotspot, 5) Verifying z-index hierarchy. Screenshots captured show drawer properly covers overlays. No visual bleeding of overlays on top of drawer. Fix working as expected."
-
-  - task: "DetailDrawer fullscreen redesign with grid layout"
-    implemented: true
-    working: true
-    file: "frontend/src/components/overview/DetailDrawer.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✓ PASS - DetailDrawer fullscreen redesign verified successfully on both desktop and mobile. Desktop (1920x1000): Drawer is FULLSCREEN (1920x1000px, covers entire viewport). Grid layout with xl:grid-cols-12 detected with 9 section tiles total, 8 sections using xl:col-span-3 (4 tiles per row). No outer vertical scrollbar on desktop (scrollHeight=788, clientHeight=788). 10 elements with overflow-y-auto for inner scrollbars. No horizontal scrollbar detected. Mobile (375x812): Grid uses grid-cols-1 (sections stack vertically). Drawer scrolls vertically as expected. Drawer closes cleanly with Escape key. All requirements met: fullscreen coverage, side-by-side grid layout with 4 tiles per row on xl+, no outer vertical scroll on desktop, individual tiles have inner scrollbars, no horizontal scrollbar, mobile stacks vertically with vertical scroll, closes with Escape/click outside."
-        - working: true
-          agent: "testing"
-          comment: "✓ PASS - Viewport testing for 1366x768 and 1920x1080 completed successfully. ALL 9 SECTIONS VISIBLE WITHOUT OUTER SCROLL on both viewports. 1366x768 Laptop: All 9 section headers visible (Signal Severity Distribution, Executive Brief, Stakeholder Tiers, Verbatim Signal Quotes, Velocity, Narrative Themes, Top Amplifiers, Top Critical Signals, Geographic Spread). No outer scroll detected (scrollHeight=766px, clientHeight=766px). 1920x1080 Desktop: All 9 section headers visible. No outer scroll detected (scrollHeight=1078px, clientHeight=1078px). Grid layout working perfectly with all sections fitting in a single view. Inner scrollbars present within individual tiles as expected. Test executed by clicking Risk Dial (severity button) to open DetailDrawer. Screenshots captured for both viewports. REQUIREMENT MET: DetailDrawer fits all 9 sections in single view without outer scrolling on typical laptop viewport (1366x768) and desktop viewport (1920x1080)."
-
-  - task: "Stakeholder Tiers labels fully visible (not truncated/hidden)"
-    implemented: true
-    working: true
-    file: "frontend/src/components/overview/DetailDrawer.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✓ PASS - Stakeholder Tiers labels fix verified successfully at 1366x768 viewport. All 4 tier labels are FULLY VISIBLE and NOT TRUNCATED: Celebrity / Major Media (161px), Influencer / Mid-Media (154px), Activist / Niche (112px), Grassroots (70px). Labels have correct CSS properties (whiteSpace=nowrap, flexShrink=0) preventing truncation. Labels are NOT hidden behind their bars. Bars can be shorter, but label names are fully readable as required. Test executed by opening DetailDrawer from Risk Dial. Screenshots captured."
-
-  - task: "Top Amplifiers list independently scrollable with Platform Amplification pinned"
-    implemented: true
-    working: true
-    file: "frontend/src/components/overview/DetailDrawer.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✓ PASS - Top Amplifiers scrollable list fix verified successfully at 1366x768 viewport. List is independently scrollable within its tile (scrollHeight: 321px, clientHeight: 25px). Successfully scrolled from 0px to 160px. Header 'Top Amplifiers' stays pinned at top (visible before & after scroll). Platform Amplification section stays pinned at bottom (visible before & after scroll). List contains 14 amplifiers, supports up to 25 rows as specified. Structure uses flex-col with overflow-y-auto on list container and flex-shrink-0 on platform section. Mouse wheel scrolling works correctly within the list while Platform Amplification remains visible. Test executed by opening DetailDrawer and programmatically scrolling the list. Screenshots captured before and after scroll."
+          comment: "✓ PASS - Analysis tab layout verified successfully across all three viewports. DESKTOP 1920x1080: All 8 sections visible simultaneously (RISK INDEX gauge, CRITICAL SIGNAL VOLUME 30-day trend, VENTURE SIGNAL BREAKDOWN stacked bars, TOP 10 MOST CRITICAL SITES table, RISK CONCENTRATION Pareto chart, SENTIMENT × RISK SITE QUADRANT scatter, EMERGING HOTSPOTS state tiles, CATEGORY × STATE HEATMAP matrix) plus filter header (Strategic Intelligence + date pickers). No outer scrollbar detected (scrollHeight=892px, clientHeight=892px, difference=0px). LAPTOP 1366x768: All 8 sections visible simultaneously plus filter header. No outer scrollbar detected (scrollHeight=580px, clientHeight=580px, difference=0px). MOBILE 375x812: All 8 sections exist in DOM and stack vertically as expected. Page is scrollable (scrollHeight=2588px, viewport=812px). Scroll functionality verified - moved 500px when requested, scrolled to bottom at 1776px. Mobile behavior correct - outer scroll allowed for stacked sections. Grid layout working perfectly: lg:grid-cols-12 with 3 rows, sections distributed across rows with appropriate col-span values. Container uses lg:h-[calc(100vh-220px)] and lg:overflow-hidden to prevent outer scroll on desktop. Individual panels have internal scrolling where needed. Test executed by: 1) Opening app in demo mode, 2) Clicking Analysis tab, 3) Verifying all sections visible and scroll behavior across viewports. Screenshots captured for all three viewports. REQUIREMENT MET: Analysis tab fits all 8 sections in single view without outer scrolling on desktop (1920x1080 and 1366x768), and stacks vertically with outer scroll on mobile (375x812)."
 
 metadata:
   created_by: "testing_agent"
   version: "1.0"
-  test_sequence: 4
+  test_sequence: 5
   run_ui: true
 
 test_plan:
   current_focus:
-    - "Stakeholder Tiers labels fully visible (not truncated/hidden)"
-    - "Top Amplifiers list independently scrollable with Platform Amplification pinned"
+    - "Analysis tab layout - all 8 sections visible without outer scroll on desktop"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
     - agent: "testing"
-      message: "Z-index bug fix verification completed successfully. The DetailDrawer now correctly appears above all map overlay elements (top-left chip, top-right toggle, bottom-left legend). Z-index values confirmed: Drawer=80, Overlays=20. Visual testing with screenshots confirms no overlay bleeding on top of drawer. Test PASSED."
-    - agent: "testing"
-      message: "DetailDrawer fullscreen redesign verification completed successfully. All requirements verified: ✓ Fullscreen coverage (1920x1000px on desktop), ✓ Grid layout with 4 tiles per row on xl+ screens (xl:grid-cols-12 with xl:col-span-3 sections), ✓ No outer vertical scrollbar on desktop, ✓ Individual tiles have inner scrollbars (10 overflow-y-auto elements), ✓ No horizontal scrollbar, ✓ Mobile (375x812) stacks vertically with vertical scroll, ✓ Drawer closes with Escape key. Screenshots captured for both desktop and mobile viewports. Test PASSED."
-    - agent: "testing"
-      message: "Viewport testing for 1366x768 and 1920x1080 completed successfully. CRITICAL REQUIREMENT MET: All 9 sections (Signal Severity Distribution, Executive Brief, Stakeholder Tiers, Verbatim Signal Quotes, Velocity, Narrative Themes, Top Amplifiers, Top Critical Signals, Geographic Spread) are visible SIMULTANEOUSLY without outer scrolling on both typical laptop (1366x768) and desktop (1920x1080) viewports. Measurements: 1366x768 - scrollHeight=766px, clientHeight=766px (no scroll); 1920x1080 - scrollHeight=1078px, clientHeight=1078px (no scroll). Grid layout working perfectly. Inner scrollbars present within individual tiles as designed. Test PASSED on both viewports."
-    - agent: "testing"
-      message: "Two UI fixes in DetailDrawer verified successfully at 1366x768 viewport: (1) Stakeholder Tiers labels - All 4 tier labels (Celebrity/Major Media, Influencer/Mid-Media, Activist/Niche, Grassroots) are fully visible, not truncated, and not hidden behind bars. Labels use whiteSpace=nowrap and flexShrink=0 for proper display. (2) Top Amplifiers scrollable list - List is independently scrollable (scrollHeight: 321px, clientHeight: 25px) with 14 amplifiers displayed. Header stays pinned at top, Platform Amplification stays pinned at bottom during scroll. Scroll test confirmed list scrolled from 0px to 160px while maintaining pinned sections. Both fixes working as specified. Test PASSED."
+      message: "Analysis tab layout verification completed successfully across all three viewports. DESKTOP 1920x1080: PASS - All 8 sections (RISK INDEX, CRITICAL SIGNAL VOLUME, VENTURE SIGNAL BREAKDOWN, TOP 10 MOST CRITICAL SITES, RISK CONCENTRATION PARETO, SENTIMENT × RISK QUADRANT, EMERGING HOTSPOTS, CATEGORY × STATE HEATMAP) plus filter header visible simultaneously without outer scrollbar (scrollHeight=clientHeight=892px). LAPTOP 1366x768: PASS - All 8 sections plus filter header visible simultaneously without outer scrollbar (scrollHeight=clientHeight=580px). MOBILE 375x812: PASS - All 8 sections exist in DOM, stack vertically as expected, page is scrollable (scrollHeight=2588px, viewport=812px), scroll functionality verified working correctly. Grid layout implementation correct: lg:grid-cols-12 with 3 rows, container uses lg:h-[calc(100vh-220px)] and lg:overflow-hidden to prevent outer scroll on desktop. Individual panels have internal scrolling where needed. Screenshots captured for all viewports. All requirements met - no issues found."

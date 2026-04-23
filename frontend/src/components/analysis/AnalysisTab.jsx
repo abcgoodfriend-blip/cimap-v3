@@ -20,7 +20,7 @@ function RiskIndexGauge() {
   const R = 60, C = Math.PI * R, dash = C * (index / 100);
 
   return (
-    <div data-testid="risk-index-gauge" className="panel p-4 flex items-center gap-4">
+    <div data-testid="risk-index-gauge" className="panel p-3 flex items-center gap-3 h-full min-h-0 overflow-hidden">
       <div className="relative w-[150px] h-[85px] shrink-0">
         <svg viewBox="0 0 150 85" className="w-full h-full">
           <path d="M 15 75 A 60 60 0 0 1 135 75" stroke="rgba(0,0,0,0.06)" strokeWidth="10" fill="none" />
@@ -45,14 +45,14 @@ function RiskIndexGauge() {
 function VolumeTrend() {
   const { sentimentTrend } = useApp();
   return (
-    <div data-testid="volume-trend" className="panel p-3">
-      <div className="flex items-center justify-between mb-2">
+    <div data-testid="volume-trend" className="panel p-3 h-full min-h-0 flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between mb-2 flex-shrink-0">
         <div>
           <div className="label-micro">Critical Signal Volume</div>
           <h4 className="font-display text-sm">30-day Trend</h4>
         </div>
       </div>
-      <div className="h-[140px]">
+      <div className="flex-1 min-h-0">
         <ResponsiveContainer>
           <LineChart data={sentimentTrend}>
             <CartesianGrid stroke="rgba(0,0,0,0.05)" strokeDasharray="2 2" />
@@ -73,9 +73,9 @@ function VentureBreakdown() {
   const max = Math.max(1, ...ventureBreakdown.map((v) => v.total || 0));
 
   return (
-    <div data-testid="venture-breakdown" className="panel p-3 h-full">
-      <div className="label-micro mb-2">Venture Signal Breakdown</div>
-      <div className="space-y-2">
+    <div data-testid="venture-breakdown" className="panel p-3 h-full min-h-0 flex flex-col overflow-hidden">
+      <div className="label-micro mb-2 flex-shrink-0">Venture Signal Breakdown</div>
+      <div className="space-y-2 flex-1 min-h-0 overflow-y-auto pr-1">
         {ventureBreakdown.map((v) => {
           const widths = {
             critical: (v.critical / max) * 100,
@@ -104,7 +104,7 @@ function VentureBreakdown() {
           );
         })}
       </div>
-      <div className="flex items-center gap-3 mt-3 label-micro">
+      <div className="flex items-center gap-3 mt-2 label-micro flex-shrink-0">
         <span className="flex items-center gap-1"><span className="w-2 h-2 bg-[var(--sev-critical)]" /> Crit</span>
         <span className="flex items-center gap-1"><span className="w-2 h-2 bg-[var(--sev-high)]" /> High</span>
         <span className="flex items-center gap-1"><span className="w-2 h-2 bg-[var(--sev-medium)]" /> Med</span>
@@ -117,11 +117,12 @@ function VentureBreakdown() {
 function TopCriticalSites() {
   const { topSites, setSelectedDetail } = useApp();
   return (
-    <div data-testid="top-critical-sites" className="panel p-0 h-full">
-      <div className="p-3 border-b border-hair">
+    <div data-testid="top-critical-sites" className="panel p-0 h-full min-h-0 flex flex-col overflow-hidden">
+      <div className="p-3 border-b border-hair flex-shrink-0">
         <div className="label-micro">Top 10 Most Critical Sites</div>
         <h4 className="font-display text-sm">Sites demanding immediate attention</h4>
       </div>
+      <div className="flex-1 min-h-0 overflow-auto">
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-hair bg-[var(--bg-panel)]">
@@ -155,6 +156,7 @@ function TopCriticalSites() {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
@@ -180,8 +182,8 @@ function RiskConcentration() {
   const siteCountTo80 = n80 === -1 ? data.length : n80 + 1;
 
   return (
-    <div data-testid="risk-concentration" className="panel p-3">
-      <div className="flex items-start justify-between mb-2">
+    <div data-testid="risk-concentration" className="panel p-3 h-full min-h-0 flex flex-col overflow-hidden">
+      <div className="flex items-start justify-between mb-2 flex-shrink-0">
         <div>
           <div className="label-micro flex items-center gap-1.5"><Target className="w-3 h-3" /> Risk Concentration · Pareto</div>
           <h4 className="font-display text-sm">Where are criticals clustering?</h4>
@@ -191,7 +193,7 @@ function RiskConcentration() {
           <div className="font-display text-lg sev-critical">{siteCountTo80} sites</div>
         </div>
       </div>
-      <div className="h-[180px] -mx-2">
+      <div className="flex-1 min-h-0 -mx-2">
         <ResponsiveContainer>
           <ComposedChart data={data}>
             <CartesianGrid stroke="rgba(0,0,0,0.05)" strokeDasharray="2 2" />
@@ -232,8 +234,8 @@ function SentimentRiskQuadrant() {
   const crisis = data.filter((d) => d.risk >= 0.55 && d.sent <= -0.15).length;
 
   return (
-    <div data-testid="sentiment-risk-quadrant" className="panel p-3">
-      <div className="flex items-start justify-between mb-2">
+    <div data-testid="sentiment-risk-quadrant" className="panel p-3 h-full min-h-0 flex flex-col overflow-hidden">
+      <div className="flex items-start justify-between mb-2 flex-shrink-0">
         <div>
           <div className="label-micro flex items-center gap-1.5"><Flame className="w-3 h-3 sev-critical" /> Sentiment × Risk · Site Quadrant</div>
           <h4 className="font-display text-sm">High-risk + negative = crisis zone</h4>
@@ -243,7 +245,7 @@ function SentimentRiskQuadrant() {
           <div className="font-display text-lg sev-critical">{crisis} sites</div>
         </div>
       </div>
-      <div className="h-[220px] -mx-2 relative">
+      <div className="flex-1 min-h-0 -mx-2 relative">
         <ResponsiveContainer>
           <ScatterChart margin={{ top: 10, right: 10, bottom: 20, left: 0 }}>
             <CartesianGrid stroke="rgba(0,0,0,0.05)" strokeDasharray="2 2" />
@@ -340,14 +342,14 @@ function EmergingHotspots() {
   }, [posts]);
 
   return (
-    <div data-testid="emerging-hotspots" className="panel p-3">
-      <div className="flex items-start justify-between mb-2">
+    <div data-testid="emerging-hotspots" className="panel p-3 h-full min-h-0 flex flex-col overflow-hidden">
+      <div className="flex items-start justify-between mb-2 flex-shrink-0">
         <div>
           <div className="label-micro flex items-center gap-1.5"><Zap className="w-3 h-3 sev-high" /> Emerging Hotspots</div>
           <h4 className="font-display text-sm">Fastest-accelerating geographies</h4>
         </div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-[var(--border-default)]">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-[var(--border-default)] flex-1 min-h-0 overflow-y-auto">
         {data.map((s) => {
           const rising = s.delta >= 0;
           return (
@@ -411,14 +413,14 @@ function CategoryStateHeatmap() {
   };
 
   return (
-    <div data-testid="category-state-heatmap" className="panel p-3">
-      <div className="flex items-start justify-between mb-2">
+    <div data-testid="category-state-heatmap" className="panel p-3 h-full min-h-0 flex flex-col overflow-hidden">
+      <div className="flex items-start justify-between mb-2 flex-shrink-0">
         <div>
           <div className="label-micro">Category × State Heatmap</div>
           <h4 className="font-display text-sm">Where narratives and geographies collide</h4>
         </div>
       </div>
-      <div className="overflow-x-auto">
+      <div className="flex-1 min-h-0 overflow-auto">
         <table className="border-collapse text-xs">
           <thead>
             <tr>
@@ -463,11 +465,15 @@ export default function AnalysisTab() {
   const { filters, patchFilters } = useApp();
 
   return (
-    <div className="space-y-4" data-testid="analysis-tab">
-      <div className="panel p-3 flex items-center justify-between flex-wrap gap-2">
+    <div
+      className="space-y-3 lg:space-y-0 lg:h-[calc(100vh-220px)] lg:min-h-[520px] lg:overflow-hidden lg:grid lg:gap-3 lg:grid-cols-12 lg:grid-rows-[auto_minmax(0,1fr)_minmax(0,1fr)]"
+      data-testid="analysis-tab"
+    >
+      {/* Row 1 — Filter header */}
+      <div className="panel p-3 flex items-center justify-between flex-wrap gap-2 lg:col-span-8 lg:row-start-1">
         <div>
           <div className="label-micro">Strategic Intelligence</div>
-          <h3 className="font-display text-lg">Venture Risk & Site Intelligence</h3>
+          <h3 className="font-display text-base lg:text-lg">Venture Risk & Site Intelligence</h3>
         </div>
         <div className="flex items-center gap-2">
           <span className="label-micro">From</span>
@@ -489,23 +495,35 @@ export default function AnalysisTab() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[3fr_7fr] gap-4">
-        <VentureBreakdown />
-        <TopCriticalSites />
+      {/* Row 1 — Risk Index Gauge */}
+      <div className="lg:col-span-4 lg:row-start-1 min-h-0">
+        <RiskIndexGauge />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-4">
-        <RiskIndexGauge />
+      {/* Row 2 */}
+      <div className="lg:col-span-3 lg:row-start-2 min-h-0">
+        <VentureBreakdown />
+      </div>
+      <div className="lg:col-span-5 lg:row-start-2 min-h-0">
+        <TopCriticalSites />
+      </div>
+      <div className="lg:col-span-4 lg:row-start-2 min-h-0">
         <VolumeTrend />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Row 3 */}
+      <div className="lg:col-span-3 lg:row-start-3 min-h-0">
         <RiskConcentration />
+      </div>
+      <div className="lg:col-span-3 lg:row-start-3 min-h-0">
         <SentimentRiskQuadrant />
       </div>
-
-      <EmergingHotspots />
-      <CategoryStateHeatmap />
+      <div className="lg:col-span-3 lg:row-start-3 min-h-0">
+        <EmergingHotspots />
+      </div>
+      <div className="lg:col-span-3 lg:row-start-3 min-h-0">
+        <CategoryStateHeatmap />
+      </div>
     </div>
   );
 }
