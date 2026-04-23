@@ -1,47 +1,7 @@
-import React, { useMemo, useState } from "react";
-import { createPortal } from "react-dom";
+import React, { useMemo } from "react";
 import { useApp } from "@/contexts/AppContext";
-import { Sparkles, TrendingUp, Flame, Target, AlertTriangle, Gavel, Megaphone, ShieldAlert, X } from "lucide-react";
-
-function Fab({ icon: Icon, label, bottom, testid, accent, onClick, count }) {
-  return (
-    <button
-      data-testid={testid}
-      onClick={onClick}
-      className="fixed right-48 z-[60] flex items-center gap-2 px-3 py-2.5 border border-hair shadow-[0_12px_28px_rgba(0,0,0,0.12)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.18)] transition-shadow"
-      style={{ bottom, background: accent?.bg || "var(--bg-surface)", color: accent?.fg || "var(--text-primary)" }}
-    >
-      <Icon className="w-4 h-4" />
-      <span className="text-xs font-semibold tracking-widest uppercase">{label}</span>
-      {count !== undefined && count > 0 && (
-        <span className="ml-1 text-[9px] font-semibold px-1.5 py-0.5 bg-[var(--sev-critical)]" style={{ color: "#fff" }}>{count}</span>
-      )}
-    </button>
-  );
-}
-
-function Panel({ open, onClose, title, subtitle, testid, bottom, children }) {
-  if (!open) return null;
-  return createPortal(
-    <div
-      data-testid={testid}
-      className="fixed right-5 z-[62] w-[440px] max-w-[calc(100vw-2rem)] glass flex flex-col"
-      style={{ bottom, maxHeight: "calc(100vh - 6rem)" }}
-    >
-      <div className="flex items-center justify-between p-3 border-b border-hair">
-        <div>
-          <div className="font-display text-sm">{title}</div>
-          <div className="label-micro">{subtitle}</div>
-        </div>
-        <button data-testid={`${testid}-close`} onClick={onClose} className="p-1 hover:bg-black/5">
-          <X className="w-4 h-4 text-[var(--text-secondary)]" />
-        </button>
-      </div>
-      <div className="p-3 overflow-y-auto">{children}</div>
-    </div>,
-    document.body
-  );
-}
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Sparkles, TrendingUp, Flame, Target, AlertTriangle, Gavel, Megaphone, ShieldAlert } from "lucide-react";
 
 function BriefingContent() {
   const { kpis, categoryDist, locations, posts } = useApp();
@@ -50,44 +10,34 @@ function BriefingContent() {
     const out = [];
     if (categoryDist?.[0]) {
       const top = categoryDist[0];
-      if (top.critical > 0) {
-        out.push({
-          icon: Flame, color: "var(--sev-critical)",
-          text: `${top.category} is driving the most critical signals (${top.critical}). Avg risk ${top.avg_risk?.toFixed ? top.avg_risk.toFixed(2) : top.avg_risk}.`,
-        });
-      }
+      if (top.critical > 0) out.push({
+        icon: Flame, color: "var(--sev-critical)",
+        text: `${top.category} is driving the most critical signals (${top.critical}). Avg risk ${top.avg_risk?.toFixed ? top.avg_risk.toFixed(2) : top.avg_risk}.`,
+      });
     }
     if (locations?.states?.length) {
       const topState = [...locations.states].sort((a, b) => b.critical - a.critical)[0];
-      if (topState) {
-        out.push({
-          icon: TrendingUp, color: "var(--sev-high)",
-          text: `Critical pressure concentrated in ${topState.state}: ${topState.critical} critical across ${topState.sites || 0} sites.`,
-        });
-      }
+      if (topState) out.push({
+        icon: TrendingUp, color: "var(--sev-high)",
+        text: `Critical pressure concentrated in ${topState.state}: ${topState.critical} critical across ${topState.sites || 0} sites.`,
+      });
     }
     const negCount = (posts || []).filter((p) => p.sentiment < -0.2).length;
-    if (negCount > 0) {
-      out.push({
-        icon: Sparkles, color: "var(--text-primary)",
-        text: `${negCount} posts trending negatively in current window — recommend PR narrative sweep.`,
-      });
-    }
+    if (negCount > 0) out.push({
+      icon: Sparkles, color: "var(--text-primary)",
+      text: `${negCount} posts trending negatively in current window — recommend PR narrative sweep.`,
+    });
     const posCount = (posts || []).filter((p) => p.sentiment > 0.3).length;
-    if (posCount > 0) {
-      out.push({
-        icon: Sparkles, color: "var(--sev-low)",
-        text: `${posCount} supportive signals detected — opportunity to amplify positive narrative.`,
-      });
-    }
+    if (posCount > 0) out.push({
+      icon: Sparkles, color: "var(--sev-low)",
+      text: `${posCount} supportive signals detected — opportunity to amplify positive narrative.`,
+    });
     const critRatio = kpis?.total_posts ? (kpis.critical_count / kpis.total_posts) : 0;
-    if (critRatio > 0.25) {
-      out.push({
-        icon: Flame, color: "var(--sev-critical)",
-        text: `Critical ratio at ${Math.round(critRatio * 100)}% — elevated system-wide risk posture.`,
-      });
-    }
-    if (!out.length) out.push({ icon: Sparkles, color: "var(--text-primary)", text: "No critical patterns detected. Continue monitoring." });
+    if (critRatio > 0.25) out.push({
+      icon: Flame, color: "var(--sev-critical)",
+      text: `Critical ratio at ${Math.round(critRatio * 100)}% — elevated system-wide risk posture.`,
+    });
+    if (!out.length) out.push({ icon: Sparkles, color: "var(--text-primary)", text: "No critical patterns detected." });
     return out.slice(0, 6);
   }, [kpis, categoryDist, locations, posts]);
 
@@ -117,14 +67,12 @@ function ActionsContent({ onClose }) {
       });
     }
     const topState = [...(locations.states || [])].sort((a, b) => b.critical - a.critical)[0];
-    if (topState) {
-      out.push({
-        icon: AlertTriangle, color: "var(--sev-high)", severity: "48H",
-        title: `Deploy ground team to ${topState.state}`,
-        detail: `${topState.critical} critical across ${topState.sites} sites · sentiment ${topState.sentiment}. On-ground stakeholder engagement.`,
-        action: () => setSelectedDetail({ type: "state", payload: topState }),
-      });
-    }
+    if (topState) out.push({
+      icon: AlertTriangle, color: "var(--sev-high)", severity: "48H",
+      title: `Deploy ground team to ${topState.state}`,
+      detail: `${topState.critical} critical across ${topState.sites} sites · sentiment ${topState.sentiment}. On-ground stakeholder engagement.`,
+      action: () => setSelectedDetail({ type: "state", payload: topState }),
+    });
     if (ventureDist[0]) {
       const v = ventureDist[0];
       out.push({
@@ -135,14 +83,12 @@ function ActionsContent({ onClose }) {
       });
     }
     const negCount = (posts || []).filter((p) => p.sentiment < -0.3).length;
-    if (negCount > 0) {
-      out.push({
-        icon: Megaphone, color: "var(--text-primary)", severity: "THIS WEEK",
-        title: `Activate counter-narrative program`,
-        detail: `${negCount} sharply-negative signals in window. Align owned media + influencer push with factual rebuttals.`,
-        action: null,
-      });
-    }
+    if (negCount > 0) out.push({
+      icon: Megaphone, color: "var(--text-primary)", severity: "THIS WEEK",
+      title: `Activate counter-narrative program`,
+      detail: `${negCount} sharply-negative signals in window. Align owned media + influencer push with factual rebuttals.`,
+      action: null,
+    });
     return out.slice(0, 4);
   }, [categoryDist, locations, ventureDist, posts, setSelectedDetail]);
 
@@ -153,7 +99,7 @@ function ActionsContent({ onClose }) {
           key={i}
           type="button"
           data-testid={`action-card-${i}`}
-          onClick={() => { if (r.action) { r.action(); onClose(); } }}
+          onClick={() => { if (r.action) { r.action(); onClose && onClose(); } }}
           disabled={!r.action}
           className="w-full text-left p-2.5 border border-hair bg-[var(--bg-surface)] hover:bg-black/[0.03] disabled:cursor-default"
         >
@@ -170,46 +116,58 @@ function ActionsContent({ onClose }) {
   );
 }
 
-export default function FloatingInsights() {
-  const [which, setWhich] = useState(null);
-  const { categoryDist } = useApp();
-  const actionsCount = categoryDist?.length ? Math.min(4, categoryDist.length) : 0;
-
+export function BriefingButton() {
+  const [open, setOpen] = React.useState(false);
   return (
-    <>
-      <Fab
-        icon={Sparkles} label="Briefing" testid="fab-briefing"
-        bottom={144}
-        onClick={() => setWhich(which === "brief" ? null : "brief")}
-      />
-      <Fab
-        icon={Target} label="Actions" testid="fab-actions"
-        bottom={88}
-        accent={{ bg: "var(--sev-critical)", fg: "#fff" }}
-        count={actionsCount}
-        onClick={() => setWhich(which === "actions" ? null : "actions")}
-      />
-
-      <Panel
-        open={which === "brief"}
-        onClose={() => setWhich(null)}
-        title="Executive Briefing"
-        subtitle="Auto-generated insights"
-        testid="panel-briefing"
-        bottom={200}
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          data-testid="fab-briefing"
+          className="flex items-center gap-1.5 px-2.5 h-8 text-xs border border-hair hover:bg-black/[0.03] transition-colors"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          <span className="uppercase tracking-[0.15em] text-[10px]">Briefing</span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        data-testid="panel-briefing"
+        className="w-[420px] max-w-[calc(100vw-2rem)] p-3 rounded-none bg-[var(--bg-app)] border-hair text-[var(--text-primary)]"
       >
+        <div className="label-micro mb-2">Executive Briefing · Auto-generated insights</div>
         <BriefingContent />
-      </Panel>
-      <Panel
-        open={which === "actions"}
-        onClose={() => setWhich(null)}
-        title="Recommended Actions"
-        subtitle="Tactical moves · click to drill down"
-        testid="panel-actions"
-        bottom={144}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+export function ActionsButton() {
+  const [open, setOpen] = React.useState(false);
+  const { categoryDist } = useApp();
+  const count = categoryDist?.length ? Math.min(4, categoryDist.length) : 0;
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          data-testid="fab-actions"
+          className="flex items-center gap-1.5 px-2.5 h-8 text-xs border border-hair hover:bg-black/[0.03] transition-colors"
+          style={{ background: "var(--sev-critical)", color: "#fff", borderColor: "var(--sev-critical)" }}
+        >
+          <Target className="w-3.5 h-3.5" />
+          <span className="uppercase tracking-[0.15em] text-[10px]">Actions</span>
+          {count > 0 && (
+            <span className="text-[9px] font-semibold px-1 ml-0.5" style={{ background: "#fff", color: "var(--sev-critical)" }}>{count}</span>
+          )}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        data-testid="panel-actions"
+        className="w-[420px] max-w-[calc(100vw-2rem)] p-3 rounded-none bg-[var(--bg-app)] border-hair text-[var(--text-primary)]"
       >
-        <ActionsContent onClose={() => setWhich(null)} />
-      </Panel>
-    </>
+        <div className="label-micro mb-2">Recommended Actions · click to drill down</div>
+        <ActionsContent onClose={() => setOpen(false)} />
+      </PopoverContent>
+    </Popover>
   );
 }

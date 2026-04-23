@@ -5,7 +5,6 @@ import GeoMapTab from "@/components/map/GeoMapTab";
 import AnalysisTab from "@/components/analysis/AnalysisTab";
 import LiveFeedTab from "@/components/feed/LiveFeedTab";
 import AIAnalystPanel from "@/components/ai/AIAnalystPanel";
-import FloatingInsights from "@/components/ai/FloatingInsights";
 import DetailDrawer from "@/components/overview/DetailDrawer";
 import PostDetailDialog from "@/components/feed/PostDetailDialog";
 import { useApp } from "@/contexts/AppContext";
@@ -23,7 +22,6 @@ export default function Dashboard() {
       </div>
       <DetailDrawer />
       <PostDetailDialog />
-      <FloatingInsights />
       <AIAnalystPanel />
     </DashboardShell>
   );

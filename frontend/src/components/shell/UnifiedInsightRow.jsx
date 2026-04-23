@@ -1,6 +1,7 @@
 import React from "react";
 import { useApp } from "@/contexts/AppContext";
 import SeverityBar from "@/components/shared/SeverityBar";
+import { BriefingButton, ActionsButton } from "@/components/ai/FloatingInsights";
 
 function KPI({ label, value, accent, testid }) {
   return (
@@ -21,13 +22,17 @@ export default function UnifiedInsightRow() {
       <div className="p-3 border-r border-white/10">
         <SeverityBar data={severityDist} />
       </div>
-      <div className="flex overflow-x-auto">
+      <div className="flex items-center overflow-x-auto">
         <KPI testid="kpi-total-signals" label="Total Signals" value={kpis?.total_posts?.toLocaleString()} />
         <KPI testid="kpi-critical-signals" label="Critical" value={kpis?.critical_count} accent="var(--sev-critical)" />
         <KPI testid="kpi-high-risk" label="High Risk" value={kpis?.high_risk_count} accent="var(--sev-high)" />
         <KPI testid="kpi-active-sites" label="Active Sites" value={kpis?.active_sites} />
         <KPI testid="kpi-avg-sentiment" label="Avg Sentiment" value={kpis?.avg_sentiment?.toFixed?.(2) ?? kpis?.avg_sentiment} accent={(kpis?.avg_sentiment ?? 0) < 0 ? "var(--sev-high)" : "var(--sev-low)"} />
         <KPI testid="kpi-posts-24h" label="Posts (24h)" value={kpis?.posts_last_24h} />
+        <div className="ml-auto flex items-center gap-2 px-3 border-l border-hair h-full">
+          <BriefingButton />
+          <ActionsButton />
+        </div>
       </div>
     </div>
   );
