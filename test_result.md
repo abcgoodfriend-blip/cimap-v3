@@ -101,3 +101,35 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Verify z-index bug fix for CIMAP dashboard's Geospatial Map tab - ensure DetailDrawer appears above map overlay chips"
+
+frontend:
+  - task: "Z-index fix for Geospatial Map overlays vs DetailDrawer"
+    implemented: true
+    working: true
+    file: "frontend/src/components/map/GeoMapTab.jsx, frontend/src/components/overview/DetailDrawer.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✓ PASS - Z-index fix verified successfully. DetailDrawer (z-index: 80) correctly appears ABOVE all map overlays (z-index: 20). Tested by: 1) Opening app in demo mode, 2) Navigating to Geospatial Map tab, 3) Verifying three overlay elements present (top-left chip 'Geospatial Intelligence', top-right mode toggle 'PINS/HEATMAP/BOTH', bottom-left legend 'Severity'), 4) Opening DetailDrawer by clicking hotspot, 5) Verifying z-index hierarchy. Screenshots captured show drawer properly covers overlays. No visual bleeding of overlays on top of drawer. Fix working as expected."
+
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Z-index fix for Geospatial Map overlays vs DetailDrawer"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "testing"
+      message: "Z-index bug fix verification completed successfully. The DetailDrawer now correctly appears above all map overlay elements (top-left chip, top-right toggle, bottom-left legend). Z-index values confirmed: Drawer=80, Overlays=20. Visual testing with screenshots confirms no overlay bleeding on top of drawer. Test PASSED."

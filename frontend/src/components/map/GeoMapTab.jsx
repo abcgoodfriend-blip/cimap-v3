@@ -65,7 +65,7 @@ function EmergingStrip() {
 
 function MapLegend() {
   return (
-    <div className="absolute bottom-3 left-3 z-[400] panel-dark px-2.5 py-1.5 text-[10px]">
+    <div className="absolute bottom-3 left-3 z-20 panel-dark px-2.5 py-1.5 text-[10px]">
       <div className="flex items-center gap-2 mb-1"><MapPin className="w-3 h-3" /><span className="label-micro">Severity</span></div>
       <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ background: "#DC2626" }} /> Critical</span>
@@ -87,10 +87,10 @@ export default function GeoMapTab() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <section className="panel p-0 h-[660px] relative overflow-hidden">
-          <div className="absolute top-3 left-3 z-[400] panel-dark px-2 py-1 label-micro">
+          <div className="absolute top-3 left-3 z-20 panel-dark px-2 py-1 label-micro">
             Geospatial Intelligence · {locations.sites?.length || 0} sites · {locations.states?.length || 0} states
           </div>
-          <div className="absolute top-3 right-3 z-[400] flex items-center gap-px bg-[var(--border-default)]">
+          <div className="absolute top-3 right-3 z-20 flex items-center gap-px bg-[var(--border-default)]">
             {[
               { k: "pins", label: "Pins" },
               { k: "heatmap", label: "Heatmap" },
