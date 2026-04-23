@@ -123,7 +123,7 @@ export function BriefingButton() {
       <PopoverTrigger asChild>
         <button
           data-testid="fab-briefing"
-          className="flex items-center gap-1.5 px-2.5 h-8 text-xs border border-hair hover:bg-black/[0.03] transition-colors"
+          className="flex items-center justify-center gap-1.5 px-2 h-8 w-full text-xs border border-hair hover:bg-black/[0.04] transition-colors"
         >
           <Sparkles className="w-3.5 h-3.5" />
           <span className="uppercase tracking-[0.15em] text-[10px]">Briefing</span>
@@ -150,7 +150,7 @@ export function ActionsButton() {
       <PopoverTrigger asChild>
         <button
           data-testid="fab-actions"
-          className="flex items-center gap-1.5 px-2.5 h-8 text-xs border border-hair hover:bg-black/[0.03] transition-colors"
+          className="flex items-center justify-center gap-1.5 px-2 h-8 w-full text-xs border transition-colors"
           style={{ background: "var(--sev-critical)", color: "#fff", borderColor: "var(--sev-critical)" }}
         >
           <Target className="w-3.5 h-3.5" />
