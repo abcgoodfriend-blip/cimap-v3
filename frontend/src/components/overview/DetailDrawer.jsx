@@ -274,6 +274,154 @@ export default function DetailDrawer() {
         <div className="p-4 space-y-4">
           <SeverityBar data={severity} />
 
+          {/* Executive Brief — 6 decision-grade metrics */}
+          <section className="panel">
+            <div className="px-3 py-2 border-b border-hair label-micro">Executive Brief · At-a-glance</div>
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-px bg-[var(--border-default)]">
+              <div className="bg-[var(--bg-surface)] p-2.5">
+                <div className="label-micro">Total Reach</div>
+                {(() => {
+                  const r = filtered.reduce((a, x) => a + (x.reach || 0), 0);
+                  const txt = r >= 1e6 ? (r / 1e6).toFixed(1) + "M" : r >= 1e3 ? (r / 1e3).toFixed(1) + "K" : String(r);
+                  return <div className="font-display text-lg">{txt}</div>;
+                })()}
+                <div className="label-micro">aggregate eyeballs</div>
+              </div>
+              <div className="bg-[var(--bg-surface)] p-2.5">
+                <div className="label-micro">Unique Voices</div>
+                <div className="font-display text-lg">{new Set(filtered.map((x) => x.handle)).size}</div>
+                <div className="label-micro">distinct authors</div>
+              </div>
+              <div className="bg-[var(--bg-surface)] p-2.5">
+                <div className="label-micro">Amplification</div>
+                {(() => {
+                  const s = filtered.reduce((a, x) => a + (x.shares || 0), 0);
+                  const txt = s >= 1e6 ? (s / 1e6).toFixed(1) + "M" : s >= 1e3 ? (s / 1e3).toFixed(1) + "K" : String(s);
+                  return <div className="font-display text-lg">{txt}</div>;
+                })()}
+                <div className="label-micro">total shares</div>
+              </div>
+              <div className="bg-[var(--bg-surface)] p-2.5">
+                <div className="label-micro">Risk Trend · 7d vs 30d</div>
+                {(() => {
+                  const DAY = 86400 * 1000, now = Date.now();
+                  const r7 = filtered.filter((x) => now - new Date(x.timestamp).getTime() <= 7 * DAY);
+                  const r30 = filtered.filter((x) => now - new Date(x.timestamp).getTime() <= 30 * DAY);
+                  const a7 = r7.length ? r7.reduce((a, x) => a + x.risk_score, 0) / r7.length : 0;
+                  const a30 = r30.length ? r30.reduce((a, x) => a + x.risk_score, 0) / r30.length : 0;
+                  const delta = a30 > 0 ? ((a7 - a30) / a30) * 100 : 0;
+                  const up = delta >= 0;
+                  return (
+                    <>
+                      <div className="font-display text-lg" style={{ color: up ? "var(--sev-critical)" : "var(--sev-low)" }}>
+                        {up ? "+" : ""}{delta.toFixed(0)}%
+                      </div>
+                      <div className="label-micro">risk drift</div>
+                    </>
+                  );
+                })()}
+              </div>
+              <div className="bg-[var(--bg-surface)] p-2.5">
+                <div className="label-micro">Peak Hour · IST</div>
+                {(() => {
+                  const h = new Array(24).fill(0);
+                  filtered.forEach((x) => { h[new Date(x.timestamp).getHours()]++; });
+                  const peak = h.indexOf(Math.max(...h));
+                  return <div className="font-display text-lg">{String(peak).padStart(2, "0")}:00</div>;
+                })()}
+                <div className="label-micro">most-active window</div>
+              </div>
+              <div className="bg-[var(--bg-surface)] p-2.5">
+                <div className="label-micro">Coordination Score</div>
+                {(() => {
+                  const DAY = 86400 * 1000;
+                  let clustered = 0;
+                  for (let i = 0; i < filtered.length; i++) {
+                    const t = new Date(filtered[i].timestamp).getTime();
+                    if (filtered.some((q, j) => j !== i && q.subcategory === filtered[i].subcategory && Math.abs(new Date(q.timestamp).getTime() - t) <= DAY)) clustered++;
+                  }
+                  const pct = filtered.length ? Math.round((clustered / filtered.length) * 100) : 0;
+                  const c = pct >= 60 ? "var(--sev-critical)" : pct >= 30 ? "var(--sev-high)" : "var(--sev-low)";
+                  const label = pct >= 60 ? "likely campaign" : pct >= 30 ? "mixed" : "organic";
+                  return (
+                    <>
+                      <div className="font-display text-lg" style={{ color: c }}>{pct}%</div>
+                      <div className="label-micro">{label}</div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          </section>
+
+          {/* Stakeholder tiers + Verbatim quotes + Regulatory flag */}
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="panel p-3">
+              <div className="label-micro mb-2">Stakeholder Tiers · by follower influence</div>
+              {(() => {
+                const tiers = { "Celebrity / Major Media": 0, "Influencer / Mid-Media": 0, "Activist / Niche": 0, "Grassroots": 0 };
+                const colors = { "Celebrity / Major Media": "var(--sev-critical)", "Influencer / Mid-Media": "var(--sev-high)", "Activist / Niche": "var(--sev-medium)", "Grassroots": "var(--sev-low)" };
+                filtered.forEach((x) => {
+                  const f = x.author_followers || 0;
+                  if (f >= 1e6) tiers["Celebrity / Major Media"]++;
+                  else if (f >= 1e5) tiers["Influencer / Mid-Media"]++;
+                  else if (f >= 1e4) tiers["Activist / Niche"]++;
+                  else tiers["Grassroots"]++;
+                });
+                const max = Math.max(1, ...Object.values(tiers));
+                return (
+                  <div className="space-y-1.5">
+                    {Object.entries(tiers).map(([t, n]) => (
+                      <div key={t} className="flex items-center gap-2 text-[11px]">
+                        <span className="w-44 truncate">{t}</span>
+                        <div className="flex-1 h-1.5 bg-black/5">
+                          <div className="h-full" style={{ background: colors[t], width: `${(n / max) * 100}%` }} />
+                        </div>
+                        <span className="font-display w-10 text-right">{n}</span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+
+              {/* Regulatory / Legal proximity + Board-escalation chip */}
+              <div className="mt-3 flex items-center gap-2 flex-wrap">
+                {(() => {
+                  const legal = filtered.some((x) => x.category === "Legal & Litigation");
+                  const fin = filtered.some((x) => x.category === "Financial Irregularities");
+                  const needsBoard = stats.critical >= 10 || (stats.signals > 0 && stats.critical / Math.max(1, stats.signals) > 0.4);
+                  const chips = [];
+                  if (legal) chips.push({ t: "LEGAL PROXIMITY", c: "var(--sev-critical)" });
+                  if (fin) chips.push({ t: "FINANCIAL EXPOSURE", c: "var(--sev-critical)" });
+                  if (needsBoard) chips.push({ t: "BOARD-ESCALATION LIKELY", c: "var(--sev-high)" });
+                  if (!chips.length) chips.push({ t: "NO IMMEDIATE ESCALATION", c: "var(--sev-low)" });
+                  return chips.map((c) => (
+                    <span key={c.t} className="label-micro px-1.5 py-0.5 border" style={{ color: c.c, borderColor: c.c }}>{c.t}</span>
+                  ));
+                })()}
+              </div>
+            </div>
+
+            <div className="panel p-3">
+              <div className="label-micro mb-2">Verbatim Signal Quotes · Top-amplified</div>
+              <div className="space-y-2">
+                {[...filtered].sort((a, b) => (b.shares || 0) - (a.shares || 0)).slice(0, 3).map((x) => (
+                  <button
+                    key={x.id}
+                    type="button"
+                    onClick={() => setSelectedPost(x)}
+                    className="w-full text-left border-l-2 pl-2.5 py-1 hover:bg-black/[0.03]"
+                    style={{ borderColor: SEV_COLOR[x.severity] }}
+                  >
+                    <div className="text-[11px] italic leading-snug text-[var(--text-primary)]">"{(x.content || "").slice(0, 170)}"</div>
+                    <div className="label-micro mt-1 truncate">— {x.author} · {x.handle} · {((x.shares || 0) / 1000).toFixed(1)}K shares · {x.platform}</div>
+                  </button>
+                ))}
+                {!filtered.length && <div className="label-micro">No quotes available.</div>}
+              </div>
+            </div>
+          </section>
+
           {/* Severity detail: full signal tree */}
           {type === "severity" && (
             <section>
