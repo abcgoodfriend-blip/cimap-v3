@@ -1,57 +1,105 @@
 import React from "react";
 import { useApp } from "@/contexts/AppContext";
 
-function color(risk) {
-  if (risk >= 0.75) return "var(--sev-critical)";
-  if (risk >= 0.55) return "var(--sev-high)";
-  if (risk >= 0.35) return "var(--sev-medium)";
-  return "var(--sev-low)";
-}
-
+/**
+ * Speedometer-style gauge with 4 color bands (green -> yellow -> orange -> red)
+ * and a needle pointing at the current avg_risk (0..1).
+ */
 export default function RiskDialGauge({ item }) {
   const { setSelectedDetail } = useApp();
   const risk = Math.max(0, Math.min(1, item.avg_risk || 0));
   const pct = Math.round(risk * 100);
-  const c = color(risk);
 
-  // Build an SVG half-donut
-  const R = 44;
-  const C = Math.PI * R; // semicircle circumference
-  const dash = C * risk;
+  // Gauge geometry
+  const cx = 90, cy = 90, r = 70;
+  const start = 180; // degrees (left)
+  const end = 360;   // degrees (right)
+  const deg = (risk * 180);
+  const needleAngle = 180 + deg; // 180..360
+  const needleRad = (needleAngle * Math.PI) / 180;
+  const needleX = cx + (r - 8) * Math.cos(needleRad);
+  const needleY = cy + (r - 8) * Math.sin(needleRad);
+
+  const polar = (angleDeg) => {
+    const a = (angleDeg * Math.PI) / 180;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  };
+  const arcPath = (fromDeg, toDeg) => {
+    const [x1, y1] = polar(fromDeg);
+    const [x2, y2] = polar(toDeg);
+    return `M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`;
+  };
+
+  const bands = [
+    { from: 180, to: 225, color: "var(--sev-low)" },
+    { from: 225, to: 270, color: "var(--sev-medium)" },
+    { from: 270, to: 315, color: "var(--sev-high)" },
+    { from: 315, to: 360, color: "var(--sev-critical)" },
+  ];
+
+  const label = risk >= 0.75 ? "CRITICAL" : risk >= 0.5 ? "HIGH" : risk >= 0.25 ? "MEDIUM" : "LOW";
+  const labelColor = risk >= 0.75 ? "var(--sev-critical)" : risk >= 0.5 ? "var(--sev-high)" : risk >= 0.25 ? "var(--sev-medium)" : "var(--sev-low)";
 
   return (
     <button
       type="button"
       data-testid={`risk-dial-${(item.category || "").replace(/\s+/g, "-")}`}
       onClick={() => setSelectedDetail({ type: "category", payload: item })}
-      className="w-full text-left p-3 hover:bg-white/5 transition-colors group"
+      className="w-full text-left p-3 hover:bg-black/5 transition-colors group"
     >
-      <div className="flex items-start gap-3">
-        <div className="relative w-[110px] h-[62px] shrink-0">
-          <svg viewBox="0 0 110 62" className="w-full h-full">
-            <path d="M 10 55 A 45 45 0 0 1 100 55" stroke="rgba(255,255,255,0.08)" strokeWidth="8" fill="none" />
-            <path
-              d="M 10 55 A 45 45 0 0 1 100 55"
-              stroke={c}
-              strokeWidth="8"
-              fill="none"
-              strokeDasharray={`${dash} ${C}`}
-              strokeLinecap="butt"
-            />
-          </svg>
-          <div className="absolute bottom-0 left-0 right-0 text-center">
-            <div className="font-display text-xl leading-none" style={{ color: c }}>{pct}</div>
-            <div className="label-micro">RISK</div>
-          </div>
-        </div>
-        <div className="min-w-0">
-          <div className="text-xs font-display leading-tight truncate">{item.category}</div>
-          <div className="flex items-center gap-3 mt-2 text-[10px] text-white/60">
-            <span><span className="sev-critical">●</span> {item.critical}</span>
+      <div className="flex items-start justify-between mb-2">
+        <div className="min-w-0 flex-1">
+          <div className="text-[11px] font-display leading-tight truncate text-[var(--text-primary)]">{item.category}</div>
+          <div className="flex items-center gap-3 mt-1 text-[10px] text-[var(--text-secondary)]">
+            <span className="sev-critical">● {item.critical}</span>
             <span>{item.signals} signals</span>
           </div>
-          <div className="text-[10px] text-white/40 mt-1 group-hover:text-white/70">Drill down →</div>
         </div>
+        <span className="label-micro px-1.5 py-0.5 border border-hair" style={{ color: labelColor, borderColor: labelColor }}>
+          {label}
+        </span>
+      </div>
+
+      <div className="relative w-full flex justify-center">
+        <svg viewBox="0 0 180 110" className="w-full max-w-[200px] h-auto">
+          {/* Background track */}
+          <path d={arcPath(180, 360)} stroke="rgba(0,0,0,0.06)" strokeWidth="14" fill="none" strokeLinecap="butt" />
+          {/* Color bands */}
+          {bands.map((b, i) => (
+            <path key={i} d={arcPath(b.from, b.to)} stroke={b.color} strokeWidth="12" fill="none" strokeLinecap="butt" />
+          ))}
+          {/* Tick marks at each segment boundary */}
+          {[180, 225, 270, 315, 360].map((t, i) => {
+            const [x1, y1] = polar(t);
+            const [x2, y2] = [
+              cx + (r - 16) * Math.cos((t * Math.PI) / 180),
+              cy + (r - 16) * Math.sin((t * Math.PI) / 180),
+            ];
+            return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#fff" strokeWidth="2" />;
+          })}
+          {/* Needle */}
+          <line
+            x1={cx}
+            y1={cy}
+            x2={needleX}
+            y2={needleY}
+            stroke="var(--text-primary)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+          <circle cx={cx} cy={cy} r="5" fill="var(--text-primary)" />
+          <circle cx={cx} cy={cy} r="2" fill="var(--bg-surface)" />
+        </svg>
+        <div className="absolute bottom-1 left-0 right-0 text-center">
+          <div className="font-display text-2xl leading-none" style={{ color: labelColor }}>
+            {pct}
+          </div>
+          <div className="label-micro">RISK INDEX</div>
+        </div>
+      </div>
+
+      <div className="text-[10px] text-[var(--text-muted)] mt-2 text-center group-hover:text-[var(--text-primary)]">
+        Drill down →
       </div>
     </button>
   );

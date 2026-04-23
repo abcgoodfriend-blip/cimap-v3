@@ -47,7 +47,7 @@ export default function Login() {
         <div className="hidden lg:flex flex-col justify-between p-10 border-r border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-[var(--sev-critical)] flex items-center justify-center">
-              <ShieldAlert className="w-5 h-5 text-black" />
+              <ShieldAlert className="w-5 h-5" style={{ color: "#fff" }} />
             </div>
             <div>
               <div className="font-display text-sm tracking-widest uppercase">CIMAP</div>
@@ -92,7 +92,7 @@ export default function Login() {
           <div className="w-full max-w-md">
             <div className="lg:hidden flex items-center gap-3 mb-8">
               <div className="w-9 h-9 bg-[var(--sev-critical)] flex items-center justify-center">
-                <ShieldAlert className="w-5 h-5 text-black" />
+                <ShieldAlert className="w-5 h-5" style={{ color: "#fff" }} />
               </div>
               <div className="font-display text-sm tracking-widest uppercase">CIMAP</div>
             </div>
@@ -130,7 +130,7 @@ export default function Login() {
                 type="submit"
                 data-testid="login-submit-btn"
                 disabled={loading}
-                className="w-full h-10 rounded-none bg-white text-black hover:bg-white/90 font-medium tracking-wide"
+                className="w-full h-10 rounded-none bg-accent-strong hover:bg-accent-strong font-medium tracking-wide"
               >
                 {loading ? "Authenticating..." : "Authenticate"}
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -152,7 +152,7 @@ export default function Login() {
                     type="button"
                     onClick={() => setRole(r)}
                     className={`py-2.5 text-xs uppercase tracking-[0.15em] transition-colors ${
-                      role === r ? "bg-white text-black" : "bg-[var(--bg-surface)] text-white/60 hover:text-white hover:bg-[var(--bg-panel)]"
+                      role === r ? "bg-accent-strong" : "bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-inset)]"
                     }`}
                   >
                     {r === "pr" ? "PR Team" : r}

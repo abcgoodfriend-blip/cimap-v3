@@ -2,83 +2,155 @@ import React, { useMemo } from "react";
 import { useApp } from "@/contexts/AppContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import SeverityBar from "@/components/shared/SeverityBar";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { TrendingUp, Zap, Activity } from "lucide-react";
+import HierarchyCrumb from "@/components/shared/HierarchyCrumb";
+import { LineChart, Line, ResponsiveContainer, XAxis, Tooltip } from "recharts";
+import { TrendingUp, TrendingDown, Zap, Radar, Users } from "lucide-react";
 
-const PLATFORM_COLORS = ["#FF3B30", "#FF9500", "#FFCC00", "#34C759", "#ffffff", "#A5A5A5"];
-
-function MiniKPI({ label, value, color, testid }) {
-  return (
-    <div data-testid={testid} className="panel-dark p-2.5">
-      <div className="label-micro">{label}</div>
-      <div className="font-display text-lg mt-0.5" style={{ color: color || "#fff" }}>{value}</div>
-    </div>
-  );
-}
+const SEV_COLOR = {
+  critical: "var(--sev-critical)", high: "var(--sev-high)", medium: "var(--sev-medium)", low: "var(--sev-low)",
+};
 
 export default function DetailDrawer() {
-  const { selectedDetail, setSelectedDetail, posts, platformDist, ventureBreakdown } = useApp();
+  const { selectedDetail, setSelectedDetail, posts, setSelectedPost } = useApp();
   const open = !!selectedDetail;
   const d = selectedDetail?.payload || {};
-  const title = d.name || d.category || d.site || d.venture || "Detail";
+  const type = selectedDetail?.type;
+  const title = d.name || d.category || d.site || d.venture || d.state || "Detail";
 
   const filtered = useMemo(() => {
     if (!selectedDetail) return [];
     return (posts || []).filter((p) => {
-      if (selectedDetail.type === "venture") return p.venture === d.name;
-      if (selectedDetail.type === "site") return p.site === d.name;
-      if (selectedDetail.type === "category") return p.category === d.category;
-      if (selectedDetail.type === "category-site") return p.site === d.site && p.category === d.name;
-      if (selectedDetail.type === "subpoint") return p.subcategory === d.name;
-      if (selectedDetail.type === "state") return p.state === d.state;
+      if (type === "venture") return p.venture === d.name;
+      if (type === "site") return p.site === d.name;
+      if (type === "category") return p.category === d.category;
+      if (type === "category-site") return p.site === d.site && p.category === d.name;
+      if (type === "subpoint") return p.subcategory === d.name;
+      if (type === "state") return p.state === d.state;
       return true;
     });
-  }, [selectedDetail, posts, d]);
+  }, [selectedDetail, posts, d, type]);
 
   const stats = useMemo(() => {
     const crit = filtered.filter((p) => p.severity === "critical").length;
+    const high = filtered.filter((p) => p.severity === "high").length;
     const avgRisk = filtered.length ? filtered.reduce((a, p) => a + p.risk_score, 0) / filtered.length : 0;
     const avgSent = filtered.length ? filtered.reduce((a, p) => a + p.sentiment, 0) / filtered.length : 0;
-    return { signals: filtered.length, critical: crit, avgRisk, avgSent };
+    const pos = filtered.filter((p) => p.sentiment > 0.15).length;
+    const neg = filtered.filter((p) => p.sentiment < -0.15).length;
+    const neu = filtered.length - pos - neg;
+    return { signals: filtered.length, critical: crit, high, avgRisk, avgSent, pos, neu, neg };
   }, [filtered]);
 
   const severity = useMemo(() => {
-    const out = { critical: 0, high: 0, medium: 0, low: 0 };
-    filtered.forEach((p) => { out[p.severity]++; });
+    const m = { critical: 0, high: 0, medium: 0, low: 0 };
+    filtered.forEach((p) => { m[p.severity]++; });
     const total = filtered.length || 1;
-    return ["critical", "high", "medium", "low"].map((s) => ({ severity: s, count: out[s], percent: Math.round((out[s] / total) * 100) }));
-  }, [filtered]);
-
-  const plat = useMemo(() => {
-    const m = {};
-    filtered.forEach((p) => { m[p.platform] = (m[p.platform] || 0) + 1; });
-    return Object.entries(m).map(([k, v]) => ({ name: k, value: v }));
+    return ["critical", "high", "medium", "low"].map((s) => ({ severity: s, count: m[s], percent: Math.round((m[s] / total) * 100) }));
   }, [filtered]);
 
   const topCritical = useMemo(() => {
-    return [...filtered]
-      .sort((a, b) => b.risk_score - a.risk_score)
-      .slice(0, 8);
+    return [...filtered].sort((a, b) => b.risk_score - a.risk_score).slice(0, 8);
   }, [filtered]);
 
-  const verticalContrib = useMemo(() => {
-    if (!selectedDetail) return [];
-    return ventureBreakdown.slice(0, 6);
-  }, [selectedDetail, ventureBreakdown]);
+  const topNarratives = useMemo(() => {
+    const m = {};
+    filtered.forEach((p) => {
+      const key = p.subcategory;
+      if (!m[key]) m[key] = { key, count: 0, critical: 0, risk: 0 };
+      m[key].count++;
+      if (p.severity === "critical") m[key].critical++;
+      m[key].risk += p.risk_score;
+    });
+    return Object.values(m)
+      .map((x) => ({ ...x, risk: x.risk / x.count }))
+      .sort((a, b) => b.critical * 2 + b.risk - (a.critical * 2 + a.risk))
+      .slice(0, 5);
+  }, [filtered]);
 
-  const { setSelectedPost } = useApp();
+  const topAuthors = useMemo(() => {
+    const m = {};
+    filtered.forEach((p) => {
+      if (!m[p.handle]) m[p.handle] = { handle: p.handle, name: p.author, posts: 0, critical: 0 };
+      m[p.handle].posts++;
+      if (p.severity === "critical") m[p.handle].critical++;
+    });
+    return Object.values(m).sort((a, b) => b.critical - a.critical || b.posts - a.posts).slice(0, 5);
+  }, [filtered]);
+
+  // Velocity: last 14 days buckets
+  const velocity = useMemo(() => {
+    const out = [];
+    const DAY = 86400 * 1000;
+    for (let i = 13; i >= 0; i--) {
+      const start = Date.now() - i * DAY;
+      const end = start + DAY;
+      const count = filtered.filter((p) => {
+        const t = new Date(p.timestamp).getTime();
+        return t >= start && t < end;
+      }).length;
+      out.push({ d: `D-${i}`, count });
+    }
+    const recent = out.slice(-3).reduce((a, x) => a + x.count, 0);
+    const prior = out.slice(-7, -3).reduce((a, x) => a + x.count, 0) / 1.33;
+    const delta = prior > 0 ? ((recent - prior) / prior) * 100 : recent > 0 ? 100 : 0;
+    return { series: out, delta };
+  }, [filtered]);
+
+  const platformAmp = useMemo(() => {
+    const m = {};
+    filtered.forEach((p) => {
+      if (!m[p.platform]) m[p.platform] = { platform: p.platform, total: 0, critical: 0 };
+      m[p.platform].total++;
+      if (p.severity === "critical") m[p.platform].critical++;
+    });
+    return Object.values(m).sort((a, b) => b.critical - a.critical).slice(0, 5);
+  }, [filtered]);
+
+  const statesInvolved = useMemo(() => {
+    const m = {};
+    filtered.forEach((p) => {
+      if (!m[p.state]) m[p.state] = { state: p.state, count: 0, critical: 0 };
+      m[p.state].count++;
+      if (p.severity === "critical") m[p.state].critical++;
+    });
+    return Object.values(m).sort((a, b) => b.critical - a.critical).slice(0, 5);
+  }, [filtered]);
+
+  const sentTotal = Math.max(1, stats.pos + stats.neu + stats.neg);
 
   return (
     <Sheet open={open} onOpenChange={(o) => !o && setSelectedDetail(null)}>
       <SheetContent
         side="right"
         data-testid="detail-drawer"
-        className="w-full sm:max-w-2xl rounded-none bg-[var(--bg-app)] border-l border-white/10 text-white p-0 overflow-y-auto"
+        className="w-full sm:max-w-2xl rounded-none bg-[var(--bg-app)] border-l border-hair text-[var(--text-primary)] p-0 overflow-y-auto z-[90]"
       >
-        <SheetHeader className="p-4 border-b border-white/10 bg-[var(--bg-surface)] text-left">
-          <div className="label-micro">{(selectedDetail?.type || "detail").toUpperCase()}</div>
-          <SheetTitle className="text-white font-display text-xl tracking-tight">{title}</SheetTitle>
-          <div className="grid grid-cols-4 gap-px bg-white/10 mt-3">
+        <SheetHeader className="p-4 border-b border-hair bg-[var(--bg-surface)] text-left">
+          <div className="flex items-center justify-between">
+            <div className="label-micro">{(type || "detail").toUpperCase()}</div>
+            <div className="flex items-center gap-2 label-micro">
+              {velocity.delta >= 0 ? (
+                <span className="flex items-center gap-1 text-[var(--sev-critical)]"><TrendingUp className="w-3 h-3" /> +{Math.round(velocity.delta)}%</span>
+              ) : (
+                <span className="flex items-center gap-1 text-[var(--sev-low)]"><TrendingDown className="w-3 h-3" /> {Math.round(velocity.delta)}%</span>
+              )}
+              <span>· 3d vs 4d</span>
+            </div>
+          </div>
+          <SheetTitle className="text-[var(--text-primary)] font-display text-xl tracking-tight mt-1">{title}</SheetTitle>
+
+          {/* Hierarchy breadcrumb */}
+          <HierarchyCrumb
+            venture={d.venture || title}
+            site={d.site || (type === "site" ? d.name : null)}
+            category={d.category || (type === "category" ? d.category : null)}
+            subcategory={type === "subpoint" ? d.name : null}
+            severity={null}
+            state={d.state}
+            platform={null}
+          />
+
+          <div className="grid grid-cols-4 gap-px bg-[var(--border-default)] mt-3">
             <div className="bg-[var(--bg-surface)] p-2.5">
               <div className="label-micro">Signals</div>
               <div className="font-display text-lg">{stats.signals}</div>
@@ -101,119 +173,135 @@ export default function DetailDrawer() {
         </SheetHeader>
 
         <div className="p-4 space-y-4">
-          {/* Row: Severity bar full width */}
           <section>
             <SeverityBar data={severity} />
           </section>
 
-          {/* Row: Risk drivers + Platform distribution */}
+          {/* Velocity & Sentiment Distribution */}
           <section className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-4">
             <div className="panel p-3">
-              <div className="label-micro mb-2">Risk Drivers (Top Categories)</div>
-              <div className="space-y-1">
-                {filteredCategories(filtered).slice(0, 5).map((c) => (
-                  <div key={c.category} className="flex items-center gap-2">
-                    <div className="text-xs truncate w-40">{c.category}</div>
-                    <div className="flex-1 h-1.5 bg-white/5 relative">
-                      <div className="h-full bg-[var(--sev-high)]" style={{ width: `${Math.min(100, c.pct)}%` }} />
-                    </div>
-                    <div className="label-micro w-12 text-right">{c.count}</div>
-                  </div>
-                ))}
+              <div className="flex items-center justify-between mb-1">
+                <div className="label-micro flex items-center gap-1.5"><Zap className="w-3 h-3 text-[var(--sev-high)]" /> Signal Velocity · 14d</div>
+                <div className="label-micro">{stats.signals} signals</div>
               </div>
-
-              <div className="grid grid-cols-3 gap-px bg-white/10 mt-4">
-                <div className="bg-[var(--bg-surface)] p-2.5 flex items-center gap-2">
-                  <TrendingUp className="w-3.5 h-3.5 text-[var(--sev-high)]" />
-                  <div>
-                    <div className="label-micro">Trend</div>
-                    <div className="text-xs">{stats.signals > 15 ? "Rising" : "Stable"}</div>
-                  </div>
-                </div>
-                <div className="bg-[var(--bg-surface)] p-2.5 flex items-center gap-2">
-                  <Zap className="w-3.5 h-3.5 text-[var(--sev-critical)]" />
-                  <div>
-                    <div className="label-micro">Velocity</div>
-                    <div className="text-xs">{stats.critical > 3 ? "High" : "Low"}</div>
-                  </div>
-                </div>
-                <div className="bg-[var(--bg-surface)] p-2.5 flex items-center gap-2">
-                  <Activity className="w-3.5 h-3.5 text-white" />
-                  <div>
-                    <div className="label-micro">Narrative</div>
-                    <div className="text-xs">Active</div>
-                  </div>
-                </div>
+              <div className="h-[100px] -mx-2">
+                <ResponsiveContainer>
+                  <LineChart data={velocity.series}>
+                    <XAxis dataKey="d" hide />
+                    <Tooltip contentStyle={{ background: "#fff", border: "1px solid rgba(0,0,0,0.15)", borderRadius: 0, fontSize: 11, fontFamily: "JetBrains Mono" }} />
+                    <Line type="monotone" dataKey="count" stroke="var(--sev-critical)" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
             <div className="panel p-3">
-              <div className="label-micro mb-2">Platform Distribution</div>
-              <div className="h-40">
-                <ResponsiveContainer>
-                  <PieChart>
-                    <Pie data={plat} dataKey="value" nameKey="name" outerRadius={60} innerRadius={30} stroke="#0A0A0A" strokeWidth={1}>
-                      {plat.map((_, i) => (
-                        <Cell key={i} fill={PLATFORM_COLORS[i % PLATFORM_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ background: "#121212", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 0, fontFamily: "JetBrains Mono", fontSize: 11 }} />
-                  </PieChart>
-                </ResponsiveContainer>
+              <div className="label-micro mb-2">Sentiment Distribution</div>
+              <div className="flex h-4 border border-hair">
+                <div className="bg-[var(--sev-critical)]" style={{ width: `${(stats.neg / sentTotal) * 100}%` }} title={`Negative: ${stats.neg}`} />
+                <div className="bg-[var(--sev-medium)]" style={{ width: `${(stats.neu / sentTotal) * 100}%` }} title={`Neutral: ${stats.neu}`} />
+                <div className="bg-[var(--sev-low)]" style={{ width: `${(stats.pos / sentTotal) * 100}%` }} title={`Positive: ${stats.pos}`} />
               </div>
-              <div className="grid grid-cols-2 gap-1 mt-2">
-                {plat.map((p, i) => (
-                  <div key={p.name} className="flex items-center justify-between text-[11px] text-white/80">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2" style={{ background: PLATFORM_COLORS[i % PLATFORM_COLORS.length] }} />
-                      {p.name}
-                    </span>
-                    <span className="text-white/60 font-display">{p.value}</span>
+              <div className="grid grid-cols-3 gap-px mt-2 bg-[var(--border-default)]">
+                <div className="bg-[var(--bg-surface)] p-1.5 text-center">
+                  <div className="label-micro">NEG</div><div className="font-display text-sm sev-critical">{stats.neg}</div>
+                </div>
+                <div className="bg-[var(--bg-surface)] p-1.5 text-center">
+                  <div className="label-micro">NEU</div><div className="font-display text-sm sev-medium">{stats.neu}</div>
+                </div>
+                <div className="bg-[var(--bg-surface)] p-1.5 text-center">
+                  <div className="label-micro">POS</div><div className="font-display text-sm sev-low">{stats.pos}</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Narrative themes + Platform amplification */}
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="panel p-3">
+              <div className="label-micro mb-2 flex items-center gap-1.5"><Radar className="w-3 h-3" /> Narrative Themes (top sub-categories)</div>
+              <div className="space-y-1.5">
+                {topNarratives.map((n) => (
+                  <div key={n.key} className="flex items-center gap-2">
+                    <div className="text-[11px] w-44 truncate">{n.key}</div>
+                    <div className="flex-1 h-1.5 bg-black/5 relative">
+                      <div className="h-full bg-[var(--sev-critical)]" style={{ width: `${Math.min(100, (n.count / Math.max(1, filtered.length)) * 100 * 3)}%` }} />
+                    </div>
+                    <div className="label-micro w-14 text-right">{n.critical}/{n.count}</div>
+                  </div>
+                ))}
+                {!topNarratives.length && <div className="label-micro">No narratives in scope.</div>}
+              </div>
+            </div>
+
+            <div className="panel p-3">
+              <div className="label-micro mb-2 flex items-center gap-1.5"><Users className="w-3 h-3" /> Top Amplifiers</div>
+              <div className="space-y-1.5">
+                {topAuthors.map((a) => (
+                  <div key={a.handle} className="flex items-center gap-2 text-[11px]">
+                    <div className="flex-1 min-w-0 truncate">
+                      <span className="text-[var(--text-primary)]">{a.name}</span>
+                      <span className="text-[var(--text-muted)] ml-1.5">{a.handle}</span>
+                    </div>
+                    <span className="label-micro">crit</span>
+                    <span className="font-display sev-critical w-6 text-right">{a.critical}</span>
+                    <span className="font-display w-8 text-right">{a.posts}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="label-micro mt-4 mb-2">Platform Amplification</div>
+              <div className="space-y-1">
+                {platformAmp.map((p) => (
+                  <div key={p.platform} className="flex items-center gap-2 text-[11px]">
+                    <span className="w-20 truncate capitalize">{p.platform}</span>
+                    <div className="flex-1 h-1.5 bg-black/5">
+                      <div className="h-full bg-[var(--sev-high)]" style={{ width: `${Math.min(100, (p.critical / Math.max(1, stats.critical || p.total)) * 100)}%` }} />
+                    </div>
+                    <span className="font-display w-10 text-right">{p.critical}/{p.total}</span>
                   </div>
                 ))}
               </div>
             </div>
           </section>
 
-          {/* Row: Top critical + Vertical contribution */}
-          <section className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4">
+          {/* Top critical signals + states */}
+          <section className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4">
             <div className="panel p-3">
               <div className="label-micro mb-2">Top Critical Signals</div>
-              <div className="max-h-80 overflow-y-auto divide-y divide-white/5">
+              <div className="max-h-72 overflow-y-auto divide-y divide-[var(--border-default)]">
                 {topCritical.map((p) => (
                   <button
                     key={p.id}
                     data-testid={`critical-signal-${p.id}`}
                     onClick={() => setSelectedPost(p)}
-                    className="w-full text-left py-2 px-1 hover:bg-white/5 transition-colors"
+                    className="w-full text-left py-2 px-1 hover:bg-black/[0.03] transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5" style={{ background: p.severity === "critical" ? "var(--sev-critical)" : "var(--sev-high)" }} />
+                      <span className="w-1.5 h-1.5" style={{ background: SEV_COLOR[p.severity] }} />
                       <span className="label-micro">{p.platform} · {p.state}</span>
-                      <span className="label-micro text-white/40 ml-auto">{new Date(p.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                      <span className="font-display text-[10px] ml-auto sev-critical">{p.risk_score}</span>
                     </div>
                     <div className="text-xs mt-1 line-clamp-2">{p.content}</div>
                   </button>
                 ))}
-                {!topCritical.length && <div className="text-xs text-white/40 py-3">No signals in scope.</div>}
+                {!topCritical.length && <div className="label-micro py-3">No signals in scope.</div>}
               </div>
             </div>
 
             <div className="panel p-3">
-              <div className="label-micro mb-2">Verticals · Risk Contribution</div>
-              <div className="space-y-2">
-                {verticalContrib.map((v) => {
-                  const pct = Math.round((v.critical / Math.max(1, stats.critical || v.total)) * 100);
-                  return (
-                    <div key={v.venture} className="flex items-center gap-2">
-                      <div className="text-[11px] w-36 truncate">{v.venture}</div>
-                      <div className="flex-1 h-1.5 bg-white/5">
-                        <div className="h-full bg-[var(--sev-critical)]" style={{ width: `${Math.min(100, pct)}%` }} />
-                      </div>
-                      <div className="label-micro w-10 text-right">{pct}%</div>
+              <div className="label-micro mb-2">Geographic Spread</div>
+              <div className="space-y-1.5">
+                {statesInvolved.map((s) => (
+                  <div key={s.state} className="flex items-center gap-2 text-[11px]">
+                    <span className="w-28 truncate">{s.state}</span>
+                    <div className="flex-1 h-1.5 bg-black/5">
+                      <div className="h-full bg-[var(--sev-critical)]" style={{ width: `${Math.min(100, (s.critical / Math.max(1, stats.critical)) * 100)}%` }} />
                     </div>
-                  );
-                })}
+                    <span className="font-display w-10 text-right">{s.critical}/{s.count}</span>
+                  </div>
+                ))}
+                {!statesInvolved.length && <div className="label-micro">No states involved.</div>}
               </div>
             </div>
           </section>
@@ -221,15 +309,4 @@ export default function DetailDrawer() {
       </SheetContent>
     </Sheet>
   );
-}
-
-function filteredCategories(list) {
-  const m = {};
-  list.forEach((p) => { m[p.category] = (m[p.category] || 0) + 1; });
-  const total = list.length || 1;
-  return Object.entries(m).map(([category, count]) => ({
-    category,
-    count,
-    pct: (count / total) * 100,
-  })).sort((a, b) => b.count - a.count);
 }

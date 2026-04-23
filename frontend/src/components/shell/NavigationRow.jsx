@@ -25,7 +25,7 @@ export default function NavigationRow() {
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 pr-3 border-r border-white/10">
           <div className="w-6 h-6 bg-[var(--sev-critical)] flex items-center justify-center">
-            <ShieldAlert className="w-3.5 h-3.5 text-black" />
+            <ShieldAlert className="w-3.5 h-3.5" style={{ color: "#fff" }} />
           </div>
           <div className="font-display text-xs tracking-[0.25em] uppercase">CIMAP</div>
           <span
@@ -43,8 +43,8 @@ export default function NavigationRow() {
               onClick={() => setActiveTab(t.k)}
               className={`px-4 py-2 text-xs uppercase tracking-[0.15em] border-r border-white/10 first:border-l transition-colors ${
                 activeTab === t.k
-                  ? "bg-white text-black"
-                  : "bg-transparent text-white/60 hover:text-white hover:bg-white/5"
+                  ? "bg-accent-strong"
+                  : "bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-inset)]"
               }`}
             >
               {t.label}
@@ -75,7 +75,10 @@ export default function NavigationRow() {
             <button data-testid="notifications-btn" className="relative flex items-center gap-1.5 px-2.5 h-8 text-xs border border-white/15 hover:border-white/30 hover:bg-white/5">
               <Bell className="w-3.5 h-3.5" />
               {alerts.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 text-[9px] font-semibold bg-[var(--sev-critical)] text-black flex items-center justify-center">
+                <span
+                className="absolute -top-1 -right-1 w-4 h-4 text-[9px] font-semibold bg-[var(--sev-critical)] text-black flex items-center justify-center"
+                style={{ color: "#fff" }}
+              >
                   {alerts.length > 9 ? "9+" : alerts.length}
                 </span>
               )}

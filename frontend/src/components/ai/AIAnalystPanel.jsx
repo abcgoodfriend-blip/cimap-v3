@@ -39,7 +39,7 @@ export default function AIAnalystPanel() {
       <button
         data-testid="ai-analyst-fab"
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-5 right-48 z-[60] flex items-center gap-2 px-3 py-2.5 bg-white text-black border border-white/20 hover:bg-white/90 transition-colors shadow-[0_0_0_1px_rgba(255,255,255,0.2),0_20px_40px_rgba(0,0,0,0.4)]"
+        className="fixed bottom-5 right-48 z-[60] flex items-center gap-2 px-3 py-2.5 bg-accent-strong hover:bg-accent-strong transition-colors shadow-[0_12px_28px_rgba(0,0,0,0.12)]"
       >
         <Brain className="w-4 h-4" />
         <span className="text-xs font-semibold tracking-widest uppercase">AI Analyst</span>
@@ -76,7 +76,7 @@ export default function AIAnalystPanel() {
                 className={`text-xs leading-relaxed ${m.role === "user" ? "text-right" : "text-left"}`}
               >
                 {m.role === "user" ? (
-                  <div className="inline-block bg-white text-black px-3 py-2 max-w-[88%] text-left">
+                  <div className="inline-block bg-accent-strong px-3 py-2 max-w-[88%] text-left">
                     {m.text}
                   </div>
                 ) : (
@@ -127,7 +127,7 @@ export default function AIAnalystPanel() {
               type="submit"
               data-testid="ai-chat-send"
               disabled={loading}
-              className="px-3 py-2 bg-white text-black hover:bg-white/90 disabled:opacity-50"
+              className="px-3 py-2 bg-accent-strong hover:bg-accent-strong disabled:opacity-50"
             >
               <Send className="w-3.5 h-3.5" />
             </button>

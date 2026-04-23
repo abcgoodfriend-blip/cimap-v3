@@ -8,46 +8,51 @@
 @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
 
 :root {
-    /* Command-center dark palette */
-    --bg-app: #0A0A0A;
-    --bg-surface: #121212;
-    --bg-panel: #1A1A1A;
+    /* Light command-center palette (Swiss, high-contrast, paper tone) */
+    --bg-app: #F5F5F2;
+    --bg-surface: #FFFFFF;
+    --bg-panel: #FAFAF7;
+    --bg-inset: #EFEFEA;
 
-    --border-default: rgba(255, 255, 255, 0.10);
-    --border-strong: rgba(255, 255, 255, 0.20);
+    --border-default: rgba(0, 0, 0, 0.11);
+    --border-strong: rgba(0, 0, 0, 0.22);
 
-    --text-primary: #FFFFFF;
-    --text-secondary: rgba(255, 255, 255, 0.65);
-    --text-muted: rgba(255, 255, 255, 0.40);
+    --text-primary: #0A0A0A;
+    --text-secondary: rgba(0, 0, 0, 0.66);
+    --text-muted: rgba(0, 0, 0, 0.44);
 
-    --sev-critical: #FF3B30;
-    --sev-high: #FF9500;
-    --sev-medium: #FFCC00;
-    --sev-low: #34C759;
+    /* Severity palette — darkened for contrast on light bg */
+    --sev-critical: #DC2626;
+    --sev-high: #EA8200;
+    --sev-medium: #D1A400;
+    --sev-low: #16A34A;
+
+    /* Accent pair for inverted pills (active tab, buttons, chat user bubble) */
+    --accent: #0A0A0A;
+    --accent-fg: #FFFFFF;
 }
 
-/* Shadcn tokens mapped to our dark palette */
 @layer base {
     :root {
-        --background: 0 0% 4%;
-        --foreground: 0 0% 100%;
-        --card: 0 0% 7%;
-        --card-foreground: 0 0% 100%;
-        --popover: 0 0% 7%;
-        --popover-foreground: 0 0% 100%;
-        --primary: 0 0% 100%;
-        --primary-foreground: 0 0% 6%;
-        --secondary: 0 0% 10%;
-        --secondary-foreground: 0 0% 100%;
-        --muted: 0 0% 12%;
-        --muted-foreground: 0 0% 60%;
-        --accent: 0 0% 14%;
-        --accent-foreground: 0 0% 100%;
-        --destructive: 4 100% 59%;
+        --background: 44 10% 96%;
+        --foreground: 0 0% 4%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 4%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 4%;
+        --primary: 0 0% 4%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 0 0% 94%;
+        --secondary-foreground: 0 0% 4%;
+        --muted: 0 0% 92%;
+        --muted-foreground: 0 0% 40%;
+        --accent: 0 0% 90%;
+        --accent-foreground: 0 0% 4%;
+        --destructive: 0 72% 45%;
         --destructive-foreground: 0 0% 100%;
-        --border: 0 0% 14%;
-        --input: 0 0% 14%;
-        --ring: 0 0% 40%;
+        --border: 0 0% 88%;
+        --input: 0 0% 88%;
+        --ring: 0 0% 60%;
         --radius: 0.125rem;
     }
 }
@@ -63,66 +68,58 @@ body,
     -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-    margin: 0;
-    min-height: 100vh;
-}
+body { margin: 0; min-height: 100vh; }
 
 ::selection {
-    background: rgba(255, 59, 48, 0.35);
-    color: #fff;
+    background: rgba(220, 38, 38, 0.22);
+    color: #0A0A0A;
 }
 
 h1, h2, h3, h4, h5, h6, .font-display {
     font-family: 'Chivo', 'Chivo Fallback', system-ui, sans-serif;
     letter-spacing: -0.01em;
+    color: var(--text-primary);
 }
 
-.mono {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-}
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 
-/* Scrollbars - minimal */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #0A0A0A; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 0; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.24); }
+/* Scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-inset); }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 0; border: 2px solid var(--bg-inset); }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.35); }
 
-/* Marquee ticker */
+/* Marquee ticker — slower for readability */
 @keyframes ticker {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
 }
 .ticker-track {
-    animation: ticker 80s linear infinite;
+    animation: ticker 200s linear infinite;
     white-space: nowrap;
     display: inline-flex;
     gap: 3rem;
     will-change: transform;
 }
-.ticker-pause:hover .ticker-track {
-    animation-play-state: paused;
-}
+.ticker-pause:hover .ticker-track { animation-play-state: paused; }
 
 /* Pulsing alert dot */
 @keyframes pulse-dot {
     0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.45; transform: scale(1.35); }
+    50% { opacity: 0.4; transform: scale(1.35); }
 }
-.pulse-dot {
-    animation: pulse-dot 1.2s ease-in-out infinite;
-}
+.pulse-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
 
 /* Grid background for login */
 .grid-bg {
     background-image:
-        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
-    background-size: 40px 40px;
+        linear-gradient(rgba(0,0,0,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.045) 1px, transparent 1px);
+    background-size: 44px 44px;
     background-position: -1px -1px;
 }
 
-/* Severity color utilities */
+/* Severity utilities */
 .sev-critical { color: var(--sev-critical); }
 .sev-high { color: var(--sev-high); }
 .sev-medium { color: var(--sev-medium); }
@@ -131,33 +128,39 @@ h1, h2, h3, h4, h5, h6, .font-display {
 .bg-sev-high { background: var(--sev-high); }
 .bg-sev-medium { background: var(--sev-medium); }
 .bg-sev-low { background: var(--sev-low); }
-.border-sev-critical { border-color: var(--sev-critical); }
-.border-sev-high { border-color: var(--sev-high); }
 
-/* Leaflet dark mode helpers */
+/* Leaflet light mode */
 .leaflet-container {
-    background: #0A0A0A !important;
+    background: #EFEFEA !important;
     font-family: 'JetBrains Mono', monospace;
+    /* Keep map below overlays like Sheet (z-50) and dialogs (z-60) */
+    z-index: 0 !important;
 }
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-control { z-index: 1 !important; }
 .leaflet-control-attribution,
 .leaflet-control-zoom a {
-    background: #121212 !important;
-    color: rgba(255,255,255,0.65) !important;
-    border-color: rgba(255,255,255,0.15) !important;
+    background: #FFFFFF !important;
+    color: rgba(0,0,0,0.65) !important;
+    border-color: rgba(0,0,0,0.15) !important;
 }
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-    background: #121212 !important;
-    color: #fff !important;
+    background: #FFFFFF !important;
+    color: #0A0A0A !important;
     border-radius: 0 !important;
-    border: 1px solid rgba(255,255,255,0.15) !important;
+    border: 1px solid rgba(0,0,0,0.15) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
 }
 
-/* Glass surface for AI analyst */
+/* Glass surface (AI analyst) — light variant */
 .glass {
-    background: rgba(10, 10, 10, 0.72);
+    background: rgba(255, 255, 255, 0.82);
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
-    border: 1px solid rgba(255,255,255,0.10);
+    border: 1px solid rgba(0,0,0,0.10);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.12);
 }
 
 @layer utilities {
@@ -167,3 +170,52 @@ h1, h2, h3, h4, h5, h6, .font-display {
     .label-micro { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
     .label-data { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary); }
 }
+
+/* ==================================================================
+   Global overrides so existing dark-theme classes render legibly on light.
+   We map `text-white*`, `bg-white/X`, `border-white/X`, `divide-white/X`
+   to sensible light-theme equivalents WITHOUT touching every component.
+   `bg-white` and `text-black` remain literal for severity-bar numerals
+   and invert-accent buttons that we explicitly convert via var(--accent).
+   ================================================================== */
+.text-white { color: var(--text-primary) !important; }
+.text-white\/90 { color: rgba(0,0,0,0.90) !important; }
+.text-white\/80 { color: rgba(0,0,0,0.80) !important; }
+.text-white\/70 { color: rgba(0,0,0,0.70) !important; }
+.text-white\/65 { color: rgba(0,0,0,0.65) !important; }
+.text-white\/60 { color: rgba(0,0,0,0.60) !important; }
+.text-white\/50 { color: rgba(0,0,0,0.50) !important; }
+.text-white\/40 { color: rgba(0,0,0,0.42) !important; }
+.text-white\/30 { color: rgba(0,0,0,0.32) !important; }
+.text-white\/20 { color: rgba(0,0,0,0.22) !important; }
+
+.bg-white\/5 { background-color: rgba(0,0,0,0.035) !important; }
+.bg-white\/10 { background-color: rgba(0,0,0,0.07) !important; }
+.bg-white\/\[0\.02\] { background-color: rgba(0,0,0,0.02) !important; }
+.hover\:bg-white\/5:hover { background-color: rgba(0,0,0,0.045) !important; }
+.hover\:bg-white\/10:hover { background-color: rgba(0,0,0,0.07) !important; }
+.hover\:bg-white\/90:hover { background-color: rgba(0,0,0,0.85) !important; }
+
+.border-white\/5 { border-color: rgba(0,0,0,0.05) !important; }
+.border-white\/10 { border-color: rgba(0,0,0,0.10) !important; }
+.border-white\/15 { border-color: rgba(0,0,0,0.13) !important; }
+.border-white\/20 { border-color: rgba(0,0,0,0.18) !important; }
+.border-white\/30 { border-color: rgba(0,0,0,0.26) !important; }
+.hover\:border-white\/30:hover { border-color: rgba(0,0,0,0.28) !important; }
+
+.divide-white\/5 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(0,0,0,0.05) !important; }
+.divide-white\/10 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(0,0,0,0.10) !important; }
+
+/* bg-black aliases used for a few decorative tints */
+.bg-black\/30 { background-color: rgba(0,0,0,0.04) !important; }
+.bg-black\/40 { background-color: rgba(0,0,0,0.05) !important; }
+.bg-black\/60 { background-color: rgba(0,0,0,0.07) !important; }
+
+/* Accent utility used for active tabs / buttons / user chat bubbles */
+.bg-accent-strong { background-color: var(--accent) !important; color: var(--accent-fg) !important; }
+.hover\:bg-accent-strong:hover { background-color: var(--accent) !important; color: var(--accent-fg) !important; }
+
+/* Force Sheet / Dialog overlays ABOVE leaflet */
+[data-radix-dialog-overlay],
+[data-radix-sheet-overlay],
+[data-state="open"][role="dialog"] { z-index: 80 !important; }

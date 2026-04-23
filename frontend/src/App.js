@@ -33,15 +33,16 @@ export default function App() {
             </Routes>
             <Toaster
               position="top-right"
-              theme="dark"
+              theme="light"
               toastOptions={{
                 style: {
-                  background: "#121212",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#fff",
+                  background: "#ffffff",
+                  border: "1px solid rgba(0,0,0,0.12)",
+                  color: "#0a0a0a",
                   borderRadius: "2px",
                   fontFamily: "JetBrains Mono, monospace",
                   fontSize: "12px",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
                 },
               }}
             />
